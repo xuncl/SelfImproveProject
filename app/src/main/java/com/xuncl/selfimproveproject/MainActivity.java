@@ -3,8 +3,10 @@ package com.xuncl.selfimproveproject;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 
 
@@ -153,6 +155,8 @@ public class MainActivity extends BaseActivity implements OnClickListener
             break;
         case R.id.title_text:
             showSchemeDetail();
+            //点击标题则存数据
+            save(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(),new Date()));
             break;
         default:
             break;
@@ -306,24 +310,27 @@ public class MainActivity extends BaseActivity implements OnClickListener
         return dialog;
     }
 
-    public void save(String inputText){
+    public void save(Serializable object){
+        LogUtils.e("scheme","Start save!");
         FileOutputStream out = null;
-        BufferedWriter writer = null;
+        ObjectOutputStream oos = null;
+
         try {
-            out = openFileOutput("data", Context.MODE_PRIVATE);
-            writer  = new BufferedWriter(new OutputStreamWriter(out));
-            writer.write(inputText);
+            out = openFileOutput("SchemeData", Context.MODE_PRIVATE);
+            oos  = new ObjectOutputStream(out);
+            oos.writeObject(object);
         }catch (IOException e){
             e.printStackTrace();
         }finally {
-            if (writer!=null){
+            if (oos!=null){
                 try {
-                    writer.close();
+                    oos.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
+        LogUtils.e("scheme","End save!");
 
     }
 }

@@ -15,12 +15,15 @@ import com.xuncl.selfimproveproject.service.Agenda;
 import com.xuncl.selfimproveproject.service.Backlog;
 import com.xuncl.selfimproveproject.service.Scheme;
 import com.xuncl.selfimproveproject.service.Target;
+import com.xuncl.selfimproveproject.utils.LogUtils;
 import com.xuncl.selfimproveproject.utils.Tools;
 
 public class DataFetcher
 {
     @SuppressLint("SimpleDateFormat")
      public static SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FOMMAT_PATTERN);
+
+    private static int stackCount = Constant.SCHEME_PREV_DAY_MAX;
     /**
      * Get the day's scheme. If there is none, build a new scheme by the day
      * before. If the day before is still none, return null.
@@ -50,6 +53,7 @@ public class DataFetcher
         if (null == scheme)
         {
             scheme = new Scheme (getPreviousByScheme(db, Tools.prevDay(date)));
+            stackCount = Constant.SCHEME_PREV_DAY_MAX;
             DataUpdater.insertScheme(db, scheme);
         }
         return scheme;
@@ -63,6 +67,12 @@ public class DataFetcher
      */
     private static Scheme getPreviousByScheme(SQLiteDatabase db,Date prevDay)
     {
+        stackCount--;
+        if (stackCount<=0){
+            return new Scheme();
+        }
+        LogUtils.e("scheme", "stackCount now-------："+stackCount);
+
         Scheme scheme = fetchOnceByDate(db, sdf.format(prevDay));
         if (scheme==null) {
             scheme = new Scheme(getPreviousByScheme(db, Tools.prevDay(prevDay)));
@@ -73,6 +83,8 @@ public class DataFetcher
     }
 
     public static ArrayList<Scheme> getAllScheme(SQLiteDatabase db, Date today){
+        LogUtils.e("scheme", "Start get All!");
+
         ArrayList<Scheme> allScheme = new ArrayList<>();
         Date thisDay = today;
         Date firstDay;
@@ -86,6 +98,8 @@ public class DataFetcher
             allScheme.add(fetchScheme(db,thisDay));
             thisDay = Tools.prevDay(thisDay);
         }
+        LogUtils.e("scheme", "End get All!");
+
         return allScheme;
     }
 
