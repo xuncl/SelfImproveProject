@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SIP</string>
+    <string name="action_settings">Settings</string>
+    <string name="default_title">9月5日 总分：0</string>
+    <string name="target_icon_description">Target icon</string>
+    <string name="target_button_description">Target done flag</string>
+    <string name="title_back_description">Title back icon</string>
+    <string name="title_add_description">Title add icon</string>
+    <string name="title_refresh_description">Title refresh icon</string>
+    <string name="target_name">事项名称</string>
+    <string name="target_description">事项描述</string>
+    <string name="target_start_time">开始时间</string>
+    <string name="target_end_time">结束时间</string>
+    <string name="target_value">事项分值</string>
+    <string name="target_isdone">标记完成</string>
+    <string name="target_isagenda">标记日常</string>
+    <string name="target_interval">增量分值</string>
+    <string name="target_maxvalue">最大分值</string>
+    <string name="hint_time">HH:mm格式</string>
+    <string name="hint_value">按照重要程度填写整数值</string>
+    <string name="hint_interval">坚持日常事件奖励每天的分值增量</string>
+    <string name="hint_maxvalue">分值增长的上限</string>
+    <string name="button_save">保存</string>
+
+</resources>

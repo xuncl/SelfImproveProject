@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:stretchColumns="1" >
+
+    <TableRow>
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:text="@string/target_name" />
+
+        <EditText
+            android:id="@+id/target_name"
+            android:layout_height="wrap_content"
+            android:hint="@string/target_name" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:text="@string/target_description" />
+
+        <EditText
+            android:id="@+id/target_description"
+            android:layout_height="wrap_content"
+            android:lines="3"
+            android:gravity="top"
+            android:hint="@string/target_description" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:text="@string/target_start_time" />
+
+        <EditText
+            android:id="@+id/target_start_time"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_time" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:text="@string/target_end_time" />
+
+        <EditText
+            android:id="@+id/target_end_time"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_time" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:text="@string/target_value" />
+
+        <EditText
+            android:id="@+id/target_value"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_value" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:text="@string/target_isdone" />
+
+        <CheckBox
+            android:id="@+id/target_isdone"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp" />
+    </TableRow>
+    
+    <TableRow>
+        
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:text="@string/target_isagenda" />
+
+        <CheckBox
+            android:id="@+id/target_isagenda"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp" />
+    </TableRow>
+    
+        <TableRow>
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:text="@string/target_interval" />
+
+        <EditText
+            android:id="@+id/target_interval"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_interval" />
+    </TableRow>
+    
+            <TableRow>
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:text="@string/target_maxvalue" />
+
+        <EditText
+            android:id="@+id/target_maxvalue"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_maxvalue" />
+    </TableRow>
+
+    <TableRow>
+
+        <Button
+            android:id="@+id/button_save"
+            android:layout_height="wrap_content"
+            android:layout_span="2"
+            android:text="@string/button_save" />
+
+    </TableRow>
+
+</TableLayout>
