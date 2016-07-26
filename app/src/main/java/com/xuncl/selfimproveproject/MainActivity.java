@@ -18,6 +18,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -44,16 +46,14 @@ import com.xuncl.selfimproveproject.service.Target;
 import com.xuncl.selfimproveproject.utils.LogUtils;
 import com.xuncl.selfimproveproject.utils.Tools;
 
-public class MainActivity extends BaseActivity implements OnClickListener
-{
+public class MainActivity extends BaseActivity implements OnClickListener {
 
     private Scheme scheme = new Scheme();
 
     private MyDatabaseHelper dbHelper;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
@@ -67,8 +67,7 @@ public class MainActivity extends BaseActivity implements OnClickListener
         MobclickAgent.startWithConfigure(config);
     }
 
-    private void initTitle()
-    {
+    private void initTitle() {
         ImageView titleBack = (ImageView) findViewById(R.id.title_back);
         titleBack.setOnClickListener(this);
         ImageView titleAdd = (ImageView) findViewById(R.id.title_add);
@@ -79,14 +78,12 @@ public class MainActivity extends BaseActivity implements OnClickListener
         titleText.setOnClickListener(this);
     }
 
-    private void initTargets()
-    {
+    private void initTargets() {
         dbHelper = new MyDatabaseHelper(this, Constant.DB_NAME, null, 1);
         refreshTargets();
     }
 
-    private void refreshTargets()
-    {
+    private void refreshTargets() {
         Date today = scheme.getDate();
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         scheme = DataFetcher.fetchScheme(db, today);
@@ -96,8 +93,7 @@ public class MainActivity extends BaseActivity implements OnClickListener
         db.close();
     }
 
-    private void initList()
-    {
+    private void initList() {
         TargetAdapter adapter = new TargetAdapter(MainActivity.this, R.layout.target_item, scheme.getTargets());
         ListView listView = (ListView) findViewById(R.id.target_list_view);
         listView.setAdapter(adapter);
@@ -115,15 +111,13 @@ public class MainActivity extends BaseActivity implements OnClickListener
         });
     }
 
-    private void saveTodayTargets()
-    {
+    private void saveTodayTargets() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         DataUpdater.updateScheme(db, scheme);
         db.close();
     }
 
-    private void addNewTarget(Target target)
-    {
+    private void addNewTarget(Target target) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         scheme.getTargets().add(target);
         DataUpdater.insertTarget(db, scheme, target);
@@ -131,41 +125,73 @@ public class MainActivity extends BaseActivity implements OnClickListener
     }
 
     @Override
-    public void onPause()
-    {
+    public void onPause() {
         saveAll();
         super.onPause();
     }
 
     @Override
-    public void onClick(View v)
-    {
-        switch (v.getId())
-        {
-        case R.id.title_back:
-            // will save data at life cycle
-            ActivityCollector.finishAll();
-            break;
-        case R.id.title_add:
-            onAddTarget();
-            break;
-        case R.id.title_refresh:
-            saveAll();
-            fetchAll();
-            break;
-        case R.id.title_text:
-            showSchemeDetail();
-            //点击标题则存数据
-            save(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(),new Date()));
-            break;
-        default:
-            break;
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.title_back:
+                // will save data at life cycle
+                ActivityCollector.finishAll();
+                break;
+            case R.id.title_add:
+                onAddTarget();
+                break;
+            case R.id.title_refresh:
+                saveAll();
+                fetchAll();
+                break;
+            case R.id.title_text:
+                showSchemeDetail();
+                //点击标题则存数据
+                save(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(), new Date()));
+                break;
+            default:
+                break;
         }
     }
 
+
+    int lastX;
+    int lastY;
+
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    public boolean onTouchEvent(MotionEvent event) {
+
+        //获取到手指处的横坐标和纵坐标
+        int x = (int) event.getX();
+        int y = (int) event.getY();
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+
+                lastX = x;
+                lastY = y;
+
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+
+                //计算移动的距离
+                int offX = x - lastX;
+                int offY = y - lastY;
+                //调用layout方法来重新放置它的位置
+//                    layout(getLeft()+offX, getTop()+offY,
+//                            getRight()+offX    , getBottom()+offY);
+                if (offX>200){
+                    //TODO: show previous scheme.
+                }
+                LogUtils.e("onTouch", "move x:" + offX + ", y:" + offY);
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         String name = data.getStringExtra(Constant.NAME_PARA);
         String des = data.getStringExtra(Constant.DESCRIPTION_PARA);
         String start = data.getStringExtra(Constant.START_PARA);
@@ -175,61 +201,53 @@ public class MainActivity extends BaseActivity implements OnClickListener
         boolean isagenda = data.getBooleanExtra(Constant.ISAGENDA_PARA, false);
         int interval = data.getIntExtra(Constant.INTERVAL_PARA, Constant.BASED_INTERVAL);
         int maxvalue = data.getIntExtra(Constant.MAXVALUE_PARA, Constant.BASED_VALUE);
-        switch (requestCode)
-        {
-        case Constant.RESULT_ADD_TAG:
-            if (resultCode == RESULT_OK)
-            {
+        switch (requestCode) {
+            case Constant.RESULT_ADD_TAG:
+                if (resultCode == RESULT_OK) {
 
-                if (!isagenda)
-                {
-                    Backlog backlog = new Backlog(scheme.getDate(), name, start, end, des, value, isdone);
-                    addNewTarget(backlog);
-                }else{
-                    Agenda agenda = new Agenda(scheme.getDate(), name, start, end, des, value, interval, maxvalue, isdone);
-                    addNewTarget(agenda);
+                    if (!isagenda) {
+                        Backlog backlog = new Backlog(scheme.getDate(), name, start, end, des, value, isdone);
+                        addNewTarget(backlog);
+                    } else {
+                        Agenda agenda = new Agenda(scheme.getDate(), name, start, end, des, value, interval, maxvalue, isdone);
+                        addNewTarget(agenda);
+                    }
+                    fetchAll();
                 }
-                fetchAll();
-            }
-            break;
-        case Constant.RESULT_MOD_TAG:
-            if (resultCode == RESULT_OK)
-            {
-                Target target = Tools.getTargetByScheme(scheme, name);
-                target.setDescription(des);
-                target.setValue(value);
-                target.setTime(Tools.parseTimeByDate(new Date(), start));
-                target.setEndTime(Tools.parseTimeByDate(new Date(), end));
-                saveAll();
-                fetchAll();
-            }
-            break;
+                break;
+            case Constant.RESULT_MOD_TAG:
+                if (resultCode == RESULT_OK) {
+                    Target target = Tools.getTargetByScheme(scheme, name);
+                    target.setDescription(des);
+                    target.setValue(value);
+                    target.setTime(Tools.parseTimeByDate(new Date(), start));
+                    target.setEndTime(Tools.parseTimeByDate(new Date(), end));
+                    saveAll();
+                    fetchAll();
+                }
+                break;
 
         }
     }
 
-    private void showSchemeDetail()
-    {
+    private void showSchemeDetail() {
         Toast.makeText(MainActivity.this, scheme.toLongString(), Toast.LENGTH_LONG).show();
     }
 
-    private boolean fetchAll()
-    {
+    private boolean fetchAll() {
 //        Toast.makeText(MainActivity.this, "fetching...", Toast.LENGTH_SHORT).show();
         refreshTargets();
         return false;
     }
 
-    private void onAddTarget()
-    {
+    private void onAddTarget() {
         LogUtils.d(Constant.SERVICE_TAG, "into onAddTarget()");
         TargetActivity.anctionStart(MainActivity.this, null, null, null, null, 0, false, false, 0, 0,
                 Constant.RESULT_ADD_TAG);
 
     }
 
-    private void deleteTarget(Target target)
-    {
+    private void deleteTarget(Target target) {
 //        Toast.makeText(MainActivity.this, "deleting...", Toast.LENGTH_SHORT).show();
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         DataDeleter.deleteTarget(db, target);
@@ -239,32 +257,26 @@ public class MainActivity extends BaseActivity implements OnClickListener
         fetchAll();
     }
 
-    private boolean saveAll()
-    {
+    private boolean saveAll() {
 //        Toast.makeText(MainActivity.this, "saving...", Toast.LENGTH_SHORT).show();
         saveTodayTargets();
         return false;
     }
 
-    private void deleteDialog(final Target target)
-    {
+    private void deleteDialog(final Target target) {
         AlertDialog.Builder builder = new Builder(MainActivity.this);
         builder.setMessage("确认删除" + target.getName() + "吗？");
         builder.setTitle("删除");
-        builder.setPositiveButton("确认", new android.content.DialogInterface.OnClickListener()
-        {
+        builder.setPositiveButton("确认", new android.content.DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
+            public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 deleteTarget(target);
             }
         });
-        builder.setNegativeButton("取消", new android.content.DialogInterface.OnClickListener()
-        {
+        builder.setNegativeButton("取消", new android.content.DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
+            public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
@@ -272,8 +284,7 @@ public class MainActivity extends BaseActivity implements OnClickListener
     }
 
     @Override
-    protected Dialog onCreateDialog(int id)
-    {
+    protected Dialog onCreateDialog(int id) {
         final int index = id;
         Dialog dialog = null;
         Builder builder = new android.app.AlertDialog.Builder(this);
@@ -310,19 +321,19 @@ public class MainActivity extends BaseActivity implements OnClickListener
         return dialog;
     }
 
-    public void save(Serializable object){
-        LogUtils.e("scheme","Start save!");
+    public void save(Serializable object) {
+        LogUtils.e("scheme", "Start save!");
         FileOutputStream out = null;
         ObjectOutputStream oos = null;
 
         try {
             out = openFileOutput("SchemeData", Context.MODE_PRIVATE);
-            oos  = new ObjectOutputStream(out);
+            oos = new ObjectOutputStream(out);
             oos.writeObject(object);
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-            if (oos!=null){
+        } finally {
+            if (oos != null) {
                 try {
                     oos.close();
                 } catch (IOException e) {
@@ -330,7 +341,7 @@ public class MainActivity extends BaseActivity implements OnClickListener
                 }
             }
         }
-        LogUtils.e("scheme","End save!");
+        LogUtils.e("scheme", "End save!");
 
     }
 }
