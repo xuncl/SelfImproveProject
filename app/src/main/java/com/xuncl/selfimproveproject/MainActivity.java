@@ -49,7 +49,7 @@ import com.xuncl.selfimproveproject.utils.Tools;
 public class MainActivity extends BaseActivity implements OnClickListener {
 
     private Scheme scheme = new Scheme();
-
+    private Date today = new Date();
     private MyDatabaseHelper dbHelper;
 
     @Override
@@ -85,6 +85,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     private void refreshTargets() {
         Date today = scheme.getDate();
+        setHomeSchemeByDate(today);
+    }
+
+    private void setHomeSchemeByDate(Date today) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         scheme = DataFetcher.fetchScheme(db, today);
         TextView titleText = (TextView) findViewById(R.id.title_text);
@@ -146,8 +150,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 break;
             case R.id.title_text:
                 showSchemeDetail();
-                //点击标题则存数据
-                save(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(), new Date()));
+                //点击标题则存数据，先注释掉，因为不小心点到会花很长时间保存
+                //TODO 以后单独做一个按钮出来
+//                save(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(), new Date()));
                 break;
             default:
                 break;
@@ -164,6 +169,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         //获取到手指处的横坐标和纵坐标
         int x = (int) event.getX();
         int y = (int) event.getY();
+
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -182,7 +188,15 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 //                    layout(getLeft()+offX, getTop()+offY,
 //                            getRight()+offX    , getBottom()+offY);
                 if (offX>200){
-                    //TODO: show previous scheme.
+                    lastX = x;
+                    setHomeSchemeByDate(Tools.prevDay(scheme.getDate()));
+                }else if (offX<-200){
+                    LogUtils.e("onTouch", "move next:" + Tools.nextDay(scheme.getDate())
+                            + ", today:" + today);
+                    if (!(Tools.nextDay(scheme.getDate()).after(today))){
+                        lastX = x;
+                        setHomeSchemeByDate(Tools.nextDay(scheme.getDate()));
+                    }
                 }
                 LogUtils.e("onTouch", "move x:" + offX + ", y:" + offY);
                 break;
