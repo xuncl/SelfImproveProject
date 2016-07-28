@@ -1,12 +1,11 @@
 package com.xuncl.selfimproveproject;
 
-import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
@@ -18,7 +17,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -49,8 +47,12 @@ import com.xuncl.selfimproveproject.utils.Tools;
 public class MainActivity extends BaseActivity implements OnClickListener {
 
     private Scheme scheme = new Scheme();
-    private Date today = new Date();
+    private static Date today = new Date();
     private MyDatabaseHelper dbHelper;
+
+    static {
+        initToday();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,18 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         MobclickAgent.UMAnalyticsConfig config = new MobclickAgent.UMAnalyticsConfig(this,
                 Constant.UMENG_APPKEY, Constant.UMENG_CHANNELID);
         MobclickAgent.startWithConfigure(config);
+    }
+
+    private static void initToday() {
+        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FOMMAT_PATTERN);
+        SimpleDateFormat sdf2 = new SimpleDateFormat(Constant.DATE_FOMMAT_PATTERN+" HH:mm");
+        String timeStr = sdf.format(today);
+        timeStr = timeStr + " 23:59";
+        try {
+            today = sdf2.parse(timeStr);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     private void initTitle() {
@@ -191,14 +205,14 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     lastX = x;
                     setHomeSchemeByDate(Tools.prevDay(scheme.getDate()));
                 }else if (offX<-200){
-                    LogUtils.e("onTouch", "move next:" + Tools.nextDay(scheme.getDate())
-                            + ", today:" + today);
+//                    LogUtils.e("onTouch", "move next:" + Tools.nextDay(scheme.getDate())
+//                            + ", today:" + today);
                     if (!(Tools.nextDay(scheme.getDate()).after(today))){
                         lastX = x;
                         setHomeSchemeByDate(Tools.nextDay(scheme.getDate()));
                     }
                 }
-                LogUtils.e("onTouch", "move x:" + offX + ", y:" + offY);
+//                LogUtils.e("onTouch", "move x:" + offX + ", y:" + offY);
                 break;
         }
         return true;
@@ -336,7 +350,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     }
 
     public void save(Serializable object) {
-        LogUtils.e("scheme", "Start save!");
+        LogUtils.d("scheme", "Start save!");
         FileOutputStream out = null;
         ObjectOutputStream oos = null;
 
@@ -355,7 +369,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 }
             }
         }
-        LogUtils.e("scheme", "End save!");
+//        LogUtils.d("scheme", "End save!");
 
     }
 }
