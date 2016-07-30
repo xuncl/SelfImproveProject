@@ -71,7 +71,7 @@ public class DataFetcher
         if (stackCount<=0){
             return new Scheme();
         }
-        LogUtils.e("scheme", "stackCount now-------："+stackCount);
+        LogUtils.e("scheme", "stackCount now-------："+stackCount+" - "+sdf.format(prevDay));
 
         Scheme scheme = fetchOnceByDate(db, sdf.format(prevDay));
         if (scheme==null) {
@@ -117,10 +117,14 @@ public class DataFetcher
 
         if (cursor.moveToFirst())
         {
-            return buildSchemeByCursor(cursor);
+            Scheme scheme = buildSchemeByCursor(cursor);
+            LogUtils.e("scheme", "Is return cursor Null? - "+scheme+" - "+date);
+            return scheme;
         }
         else
         {
+            LogUtils.e("scheme", "Actually return Null? "+date);
+
             return null;
         }
     }

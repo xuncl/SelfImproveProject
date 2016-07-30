@@ -163,10 +163,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 fetchAll();
                 break;
             case R.id.title_text:
-                showSchemeDetail();
+//                showSchemeDetail();
                 //点击标题则存数据，先注释掉，因为不小心点到会花很长时间保存
                 //TODO 以后单独做一个按钮出来
-//                save(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(), new Date()));
+                save(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(), new Date()));
                 break;
             default:
                 break;
