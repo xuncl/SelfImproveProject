@@ -160,7 +160,7 @@ public class Scheme implements Evalueable, Serializable
     public String toLongString()
     {
         StringBuilder sb = new StringBuilder();
-        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FOMMAT_PATTERN);
+        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN);
         String timeStr = sdf.format(getDate());
         int count = 0;
         int doneValue = 0;
@@ -191,7 +191,7 @@ public class Scheme implements Evalueable, Serializable
     public String toShortString()
     {
         StringBuilder sb = new StringBuilder();
-        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FOMMAT_PATTERN);
+        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN);
         String timeStr = sdf.format(getDate());
         sb.append(timeStr);
         sb.append(" today:");

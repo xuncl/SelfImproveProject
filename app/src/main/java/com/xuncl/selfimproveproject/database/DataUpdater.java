@@ -22,8 +22,8 @@ public class DataUpdater
         scheme.check();
         List<Target> targets = scheme.getTargets();
         ContentValues values = new ContentValues();
-        SimpleDateFormat dateFormat = new SimpleDateFormat(Constant.DATE_FOMMAT_PATTERN);
-        SimpleDateFormat timeFormat = new SimpleDateFormat(Constant.TIME_FOMMAT_PATTERN);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN);
+        SimpleDateFormat timeFormat = new SimpleDateFormat(Constant.TIME_FORMAT_PATTERN);
 
         String whereClause = " " + Constant.COL_NAME + " = ? and " + Constant.COL_MDATE + " = ? ";
         db.beginTransaction();
@@ -77,8 +77,8 @@ public class DataUpdater
         scheme.check();
         List<Target> targets = scheme.getTargets();
         ContentValues values = new ContentValues();
-        SimpleDateFormat dateFormat = new SimpleDateFormat(Constant.DATE_FOMMAT_PATTERN);
-        SimpleDateFormat timeFormat = new SimpleDateFormat(Constant.TIME_FOMMAT_PATTERN);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN);
+        SimpleDateFormat timeFormat = new SimpleDateFormat(Constant.TIME_FORMAT_PATTERN);
         db.beginTransaction();
         for (Target target : targets)
         {
@@ -126,8 +126,8 @@ public class DataUpdater
         boolean saved = false;
         scheme.check();
         ContentValues values = new ContentValues();
-        SimpleDateFormat dateFormat = new SimpleDateFormat(Constant.DATE_FOMMAT_PATTERN);
-        SimpleDateFormat timeFormat = new SimpleDateFormat(Constant.TIME_FOMMAT_PATTERN);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN);
+        SimpleDateFormat timeFormat = new SimpleDateFormat(Constant.TIME_FORMAT_PATTERN);
 
         saved = true;
         values.put(Constant.COL_NAME, target.getName());

@@ -69,9 +69,12 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         MobclickAgent.startWithConfigure(config);
     }
 
+    /**
+     * 初始化today变量，使其为今天的23点59分，用于右划边界的判断
+     */
     private static void initToday() {
-        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FOMMAT_PATTERN);
-        SimpleDateFormat sdf2 = new SimpleDateFormat(Constant.DATE_FOMMAT_PATTERN+" HH:mm");
+        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN);
+        SimpleDateFormat sdf2 = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN +" HH:mm");
         String timeStr = sdf.format(today);
         timeStr = timeStr + " 23:59";
         try {
@@ -81,6 +84,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         }
     }
 
+    /**
+     * 初始化标题栏的资源
+     */
     private void initTitle() {
         ImageView titleBack = (ImageView) findViewById(R.id.title_back);
         titleBack.setOnClickListener(this);
@@ -92,16 +98,26 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         titleText.setOnClickListener(this);
     }
 
+    /**
+     * 初始化今日的计划
+     */
     private void initTargets() {
         dbHelper = new MyDatabaseHelper(this, Constant.DB_NAME, null, 1);
         refreshTargets();
     }
 
+    /**
+     * 刷新页面
+     */
     private void refreshTargets() {
         Date today = scheme.getDate();
         setHomeSchemeByDate(today);
     }
 
+    /**
+     * 将指定的日期的计划显示在主页上
+     * @param today 日期
+     */
     private void setHomeSchemeByDate(Date today) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         scheme = DataFetcher.fetchScheme(db, today);
@@ -111,6 +127,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         db.close();
     }
 
+    /**
+     * 初始化计划列表
+     */
     private void initList() {
         TargetAdapter adapter = new TargetAdapter(MainActivity.this, R.layout.target_item, scheme.getTargets());
         ListView listView = (ListView) findViewById(R.id.target_list_view);
@@ -129,12 +148,19 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         });
     }
 
+    /**
+     * 保存当前主页的计划
+     */
     private void saveTodayTargets() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         DataUpdater.updateScheme(db, scheme);
         db.close();
     }
 
+    /**
+     * 添加一个新的计划项目到本页的计划组
+     * @param target 要加入的计划
+     */
     private void addNewTarget(Target target) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         scheme.getTargets().add(target);
@@ -199,25 +225,27 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 int offX = x - lastX;
                 int offY = y - lastY;
                 //调用layout方法来重新放置它的位置
-//                    layout(getLeft()+offX, getTop()+offY,
-//                            getRight()+offX    , getBottom()+offY);
+               // 左划右划载入昨天或明天的计划组。
                 if (offX>200){
                     lastX = x;
                     setHomeSchemeByDate(Tools.prevDay(scheme.getDate()));
                 }else if (offX<-200){
-//                    LogUtils.e("onTouch", "move next:" + Tools.nextDay(scheme.getDate())
-//                            + ", today:" + today);
                     if (!(Tools.nextDay(scheme.getDate()).after(today))){
                         lastX = x;
                         setHomeSchemeByDate(Tools.nextDay(scheme.getDate()));
                     }
                 }
-//                LogUtils.e("onTouch", "move x:" + offX + ", y:" + offY);
                 break;
         }
         return true;
     }
 
+    /**
+     * 获取添加计划的回调函数
+     * @param requestCode 请求码
+     * @param resultCode 返回码
+     * @param data intent
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         String name = data.getStringExtra(Constant.NAME_PARA);
@@ -258,23 +286,37 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         }
     }
 
+    /**
+     * 显示当前计划组的而完成情况
+     */
     private void showSchemeDetail() {
         Toast.makeText(MainActivity.this, scheme.toLongString(), Toast.LENGTH_LONG).show();
     }
 
+    /**
+     * 从数据库里再取一次数据放在主页，目前相当于刷新
+     * @return
+     */
     private boolean fetchAll() {
 //        Toast.makeText(MainActivity.this, "fetching...", Toast.LENGTH_SHORT).show();
         refreshTargets();
         return false;
     }
 
+    /**
+     * 发起添加计划
+     */
     private void onAddTarget() {
         LogUtils.d(Constant.SERVICE_TAG, "into onAddTarget()");
-        TargetActivity.anctionStart(MainActivity.this, null, null, null, null, 0, false, false, 0, 0,
+        TargetActivity.actionStart(MainActivity.this, null, null, null, null, 0, false, false, 0, 0,
                 Constant.RESULT_ADD_TAG);
 
     }
 
+    /**
+     * 删除某计划并刷新主页
+     * @param target 待删除的计划
+     */
     private void deleteTarget(Target target) {
 //        Toast.makeText(MainActivity.this, "deleting...", Toast.LENGTH_SHORT).show();
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -285,12 +327,20 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         fetchAll();
     }
 
+    /**
+     * 保存所有，目前是保存当前页面的计划组
+     * @return
+     */
     private boolean saveAll() {
 //        Toast.makeText(MainActivity.this, "saving...", Toast.LENGTH_SHORT).show();
         saveTodayTargets();
         return false;
     }
 
+    /**
+     * 弹出删除的对话框
+     * @param target 待删除的计划
+     */
     private void deleteDialog(final Target target) {
         AlertDialog.Builder builder = new Builder(MainActivity.this);
         builder.setMessage("确认删除" + target.getName() + "吗？");
@@ -311,6 +361,11 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         builder.create().show();
     }
 
+    /**
+     * 弹出 列表的点击后 选择操作的对话框
+     * @param id 列表序号
+     * @return 对话框
+     */
     @Override
     protected Dialog onCreateDialog(int id) {
         final int index = id;
@@ -330,12 +385,12 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     Target target = scheme.getTargets().get(index);
                     if (target instanceof Agenda) {
                         Agenda agenda = (Agenda) target;
-                        TargetActivity.anctionStart(MainActivity.this, agenda.getName(), agenda.getDescription(),
+                        TargetActivity.actionStart(MainActivity.this, agenda.getName(), agenda.getDescription(),
                                 Tools.formatTime(agenda.getTime()), Tools.formatTime(agenda.getEndTime()),
                                 agenda.getValue(), agenda.isDone(), true, agenda.getInterval(), agenda.getMaxValue(),
                                 Constant.RESULT_MOD_TAG);
                     } else {
-                        TargetActivity.anctionStart(MainActivity.this, target.getName(), target.getDescription(),
+                        TargetActivity.actionStart(MainActivity.this, target.getName(), target.getDescription(),
                                 Tools.formatTime(target.getTime()), Tools.formatTime(target.getEndTime()),
                                 target.getValue(), target.isDone(), false, 0, 0, Constant.RESULT_MOD_TAG);
                     }
@@ -349,8 +404,11 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         return dialog;
     }
 
+    /**
+     * 将所有数据保存成文件
+     * @param object 传进来的数据
+     */
     public void save(Serializable object) {
-        LogUtils.d("scheme", "Start save!");
         FileOutputStream out = null;
         ObjectOutputStream oos = null;
 
@@ -369,7 +427,5 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 }
             }
         }
-//        LogUtils.d("scheme", "End save!");
-
     }
 }

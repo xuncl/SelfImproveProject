@@ -1,7 +1,5 @@
 package com.xuncl.selfimproveproject.utils;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -39,7 +37,7 @@ public class Tools
         boolean res = true;
         if (isEmpty(time))
             return true; // can be empty
-        SimpleDateFormat sdf = new SimpleDateFormat(Constant.TIME_FOMMAT_PATTERN);
+        SimpleDateFormat sdf = new SimpleDateFormat(Constant.TIME_FORMAT_PATTERN);
         try
         {
             sdf.parse(time);
@@ -54,15 +52,15 @@ public class Tools
     @SuppressLint("SimpleDateFormat")
     public static String formatTime(Date time)
     {
-        SimpleDateFormat sdf = new SimpleDateFormat(Constant.TIME_FOMMAT_PATTERN);
+        SimpleDateFormat sdf = new SimpleDateFormat(Constant.TIME_FORMAT_PATTERN);
         return sdf.format(time);
     }
 
     @SuppressLint("SimpleDateFormat")
     public static Date parseTimeByDate(Date date, String time)
     {
-        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FOMMAT_PATTERN);
-        SimpleDateFormat sdf2 = new SimpleDateFormat(Constant.DATE_FOMMAT_PATTERN + Constant.TIME_FOMMAT_PATTERN);
+        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN);
+        SimpleDateFormat sdf2 = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN + Constant.TIME_FORMAT_PATTERN);
         String mdate = sdf.format(date);
         Date stime = new Date();
         try
@@ -78,7 +76,7 @@ public class Tools
     @SuppressLint("SimpleDateFormat")
     public static Date parseTimeByDate(String date, String time)
     {
-        SimpleDateFormat sdf2 = new SimpleDateFormat(Constant.DATE_FOMMAT_PATTERN + Constant.TIME_FOMMAT_PATTERN);
+        SimpleDateFormat sdf2 = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN + Constant.TIME_FORMAT_PATTERN);
         Date stime = new Date();
         try
         {

@@ -2,6 +2,7 @@ package com.xuncl.selfimproveproject;
 
 public final class Constant
 {
+    // 默认的空计划数据
     public static final String UNNAMED_AGENDA = "未名日常事项";
     public static final String UNNAMED_BACKLOG = "未名待办事项";
     public static final String DEFAULT_DATE = "2015/09/06";
@@ -11,8 +12,8 @@ public final class Constant
     public static final int BASED_VALUE = 2;
     public static final int BASED_INTERVAL = 0;
     
-    public static final String DATE_FOMMAT_PATTERN = "yyyy/MM/dd";
-    public static final String TIME_FOMMAT_PATTERN = "HH:mm";
+    public static final String DATE_FORMAT_PATTERN = "yyyy/MM/dd";
+    public static final String TIME_FORMAT_PATTERN = "HH:mm";
     public static final String THE_VERY_FIRST_DAY = "2016/07/16";
     // 目前是模拟器测试参数，在现实环境里注意修改这个参数
 //    public static final String THE_VERY_FIRST_DAY = "2015/09/07";

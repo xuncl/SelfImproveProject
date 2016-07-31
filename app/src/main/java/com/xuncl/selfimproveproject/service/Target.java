@@ -123,7 +123,7 @@ public abstract class Target implements Checkable, Evalueable, Serializable
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        SimpleDateFormat sdf = new SimpleDateFormat(Constant.TIME_FOMMAT_PATTERN);
+        SimpleDateFormat sdf = new SimpleDateFormat(Constant.TIME_FORMAT_PATTERN);
         String timeStr = sdf.format(time);
         sb.append(timeStr);
         sb.append(" ");
@@ -137,7 +137,7 @@ public abstract class Target implements Checkable, Evalueable, Serializable
     public String toLongString()
     {
         StringBuilder sb = new StringBuilder();
-        SimpleDateFormat sdf = new SimpleDateFormat(Constant.TIME_FOMMAT_PATTERN);
+        SimpleDateFormat sdf = new SimpleDateFormat(Constant.TIME_FORMAT_PATTERN);
         String timeStr = sdf.format(time);
         sb.append(timeStr);
         sb.append(" ");

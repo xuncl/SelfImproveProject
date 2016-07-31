@@ -22,8 +22,8 @@ public class TargetActivity extends BaseActivity
     private EditText startEdit;
     private EditText endEdit;
     private EditText valueEdit;
-    private CheckBox isdoneBox;
-    private CheckBox isagendaBox;
+    private CheckBox isDoneBox;
+    private CheckBox isAgendaBox;
     private EditText intervalEdit;
     private EditText maxvalueEdit;
     private Button save;
@@ -41,8 +41,8 @@ public class TargetActivity extends BaseActivity
         startEdit = (EditText) findViewById(R.id.target_start_time);
         endEdit = (EditText) findViewById(R.id.target_end_time);
         valueEdit = (EditText) findViewById(R.id.target_value);
-        isdoneBox = (CheckBox) findViewById(R.id.target_isdone);
-        isagendaBox = (CheckBox) findViewById(R.id.target_isagenda);
+        isDoneBox = (CheckBox) findViewById(R.id.target_isdone);
+        isAgendaBox = (CheckBox) findViewById(R.id.target_isagenda);
         intervalEdit = (EditText) findViewById(R.id.target_interval);
         maxvalueEdit = (EditText) findViewById(R.id.target_maxvalue);
         Intent intent = getIntent();
@@ -55,19 +55,19 @@ public class TargetActivity extends BaseActivity
             startEdit.setText(intent.getStringExtra(Constant.START_PARA));
             endEdit.setText(intent.getStringExtra(Constant.END_PARA));
             valueEdit.setText("" + intent.getIntExtra(Constant.VALUE_PARA, Constant.BASED_VALUE));
-            isdoneBox.setChecked(intent.getBooleanExtra(Constant.ISDONE_PARA, false));
-            isagendaBox.setChecked(isagenda);
+            isDoneBox.setChecked(intent.getBooleanExtra(Constant.ISDONE_PARA, false));
+            isAgendaBox.setChecked(isagenda);
             intervalEdit.setText("" + intent.getIntExtra(Constant.INTERVAL_PARA, Constant.BASED_INTERVAL));
             maxvalueEdit.setText("" + intent.getIntExtra(Constant.MAXVALUE_PARA, Constant.BASED_VALUE));
             if (isagenda)
             {
-                isagendaBox.setEnabled(false);
+                isAgendaBox.setEnabled(false);
                 intervalEdit.setEnabled(false);
                 maxvalueEdit.setEnabled(false);
             }
             else
             {
-                isagendaBox.setVisibility(View.GONE);
+                isAgendaBox.setVisibility(View.GONE);
                 intervalEdit.setVisibility(View.GONE);
                 maxvalueEdit.setVisibility(View.GONE);
             }
@@ -80,7 +80,7 @@ public class TargetActivity extends BaseActivity
             {
                 boolean valueParsable = true;
 
-                boolean isagenda = isagendaBox.isChecked();
+                boolean isagenda = isAgendaBox.isChecked();
                 int value = Constant.BASED_VALUE;
                 int interval = Constant.BASED_INTERVAL;
                 int maxvalue = Constant.BASED_VALUE;
@@ -101,7 +101,7 @@ public class TargetActivity extends BaseActivity
                 String description = desEdit.getText().toString();
                 String start = startEdit.getText().toString();
                 String end = endEdit.getText().toString();
-                boolean isdone = isdoneBox.isChecked();
+                boolean isdone = isDoneBox.isChecked();
 
                 if (valueParsable && (!Tools.isEmpty(name)) && (Tools.checkTime(start)) && (Tools.checkTime(end)))
                 {
@@ -136,8 +136,22 @@ public class TargetActivity extends BaseActivity
         super.onBackPressed();
     }
 
-    public static void anctionStart(BaseActivity activity, String name, String description, String start, String end,
-            int value, boolean isdone, boolean isagenda, int interval, int maxvalue, int resultTag)
+    /**
+     * 传参启动添加计划的Activity
+     * @param activity 启动者
+     * @param name 计划名
+     * @param description 描述
+     * @param start 开始时间
+     * @param end 结束时间
+     * @param value 分值
+     * @param isDone 是否完成
+     * @param isAgenda 是否为长期任务
+     * @param interval 分值增长间隔
+     * @param maxvalue 分值最大值
+     * @param resultTag 结果标签
+     */
+    public static void actionStart(BaseActivity activity, String name, String description, String start, String end,
+                                   int value, boolean isDone, boolean isAgenda, int interval, int maxvalue, int resultTag)
     {
         Intent intent = new Intent(activity, TargetActivity.class);
         intent.putExtra(Constant.NAME_PARA, name);
@@ -145,8 +159,8 @@ public class TargetActivity extends BaseActivity
         intent.putExtra(Constant.START_PARA, start);
         intent.putExtra(Constant.END_PARA, end);
         intent.putExtra(Constant.VALUE_PARA, value);
-        intent.putExtra(Constant.ISDONE_PARA, isdone);
-        intent.putExtra(Constant.ISAGENDA_PARA, isagenda);
+        intent.putExtra(Constant.ISDONE_PARA, isDone);
+        intent.putExtra(Constant.ISAGENDA_PARA, isAgenda);
         intent.putExtra(Constant.INTERVAL_PARA, interval);
         intent.putExtra(Constant.MAXVALUE_PARA, maxvalue);
         activity.startActivityForResult(intent, resultTag);

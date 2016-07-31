@@ -21,7 +21,7 @@ import com.xuncl.selfimproveproject.utils.Tools;
 public class DataFetcher
 {
     @SuppressLint("SimpleDateFormat")
-     public static SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FOMMAT_PATTERN);
+     public static SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN);
 
     private static int stackCount = Constant.SCHEME_PREV_DAY_MAX;
     /**

@@ -14,7 +14,7 @@ public class DataDeleter
     @SuppressLint("SimpleDateFormat")
     public static void deleteTarget(SQLiteDatabase db, Target target)
     {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(Constant.DATE_FOMMAT_PATTERN);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN);
         String[] whereArgs =
         {
                 target.getName(), dateFormat.format(target.getTime())
