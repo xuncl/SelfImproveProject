@@ -1,11 +1,14 @@
 package com.xuncl.selfimproveproject;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 
@@ -178,7 +181,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.title_back:
-                // will save data at life cycle
+                // will saveFile data at life cycle
                 ActivityCollector.finishAll();
                 break;
             case R.id.title_add:
@@ -189,10 +192,16 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 fetchAll();
                 break;
             case R.id.title_text:
-//                showSchemeDetail();
+                showSchemeDetail();
                 //点击标题则存数据，先注释掉，因为不小心点到会花很长时间保存
                 //TODO 以后单独做一个按钮出来
-                save(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(), new Date()));
+//                saveFile(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(), new Date()));
+                Object obj = loadFile("SchemeData");
+                ArrayList<Scheme> arrayList = (ArrayList<Scheme>)obj;
+                for(Scheme s:arrayList){
+                    if (null!=s)
+                        LogUtils.e("load",s.toLongString());
+                }
                 break;
             default:
                 break;
@@ -408,7 +417,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
      * 将所有数据保存成文件
      * @param object 传进来的数据
      */
-    public void save(Serializable object) {
+    public void saveFile(Serializable object) {
         FileOutputStream out = null;
         ObjectOutputStream oos = null;
 
@@ -427,5 +436,32 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 }
             }
         }
+    }
+    /**
+     * 将所有数据保存成文件
+     * @param fileDir 文件路径
+     */
+    public Object loadFile(String fileDir) {
+        FileInputStream in = null;
+        ObjectInputStream ois = null;
+        Object obj = null;
+        try {
+            in = openFileInput(fileDir);
+            ois = new ObjectInputStream(in);
+            obj = ois.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if (ois != null) {
+                try {
+                    ois.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return obj;
     }
 }
