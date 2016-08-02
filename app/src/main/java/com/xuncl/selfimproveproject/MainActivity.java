@@ -20,6 +20,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -52,6 +53,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private Scheme scheme = new Scheme();
     private static Date today = new Date();
     private MyDatabaseHelper dbHelper;
+    private String path = Environment.getExternalStorageDirectory().getPath()+"/scheme";
 
     static {
         initToday();
@@ -196,11 +198,14 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 //点击标题则存数据，先注释掉，因为不小心点到会花很长时间保存
                 //TODO 以后单独做一个按钮出来
 //                saveFile(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(), new Date()));
-                Object obj = loadFile("SchemeData");
+//                LogUtils.e("save",path);
+                Object obj = loadFile(path);
                 ArrayList<Scheme> arrayList = (ArrayList<Scheme>)obj;
-                for(Scheme s:arrayList){
-                    if (null!=s)
-                        LogUtils.e("load",s.toLongString());
+                if (arrayList!=null) {
+                    for(Scheme s:arrayList){
+                        if (null!=s)
+                            LogUtils.e("load",s.toLongString());
+                    }
                 }
                 break;
             default:
@@ -422,7 +427,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         ObjectOutputStream oos = null;
 
         try {
-            out = openFileOutput("SchemeData", Context.MODE_PRIVATE);
+            // sdcard时会报分隔符错误
+//            out = openFileOutput(path, Context.MODE_PRIVATE);
+            out = new FileOutputStream(path);
             oos = new ObjectOutputStream(out);
             oos.writeObject(object);
         } catch (IOException e) {
@@ -446,7 +453,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         ObjectInputStream ois = null;
         Object obj = null;
         try {
-            in = openFileInput(fileDir);
+            // sdcard时会报分隔符错误
+//            in = openFileInput(fileDir);
+            in = new FileInputStream(fileDir);
             ois = new ObjectInputStream(in);
             obj = ois.readObject();
         } catch (IOException e) {
