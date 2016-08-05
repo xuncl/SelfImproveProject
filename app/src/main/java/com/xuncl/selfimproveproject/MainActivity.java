@@ -15,7 +15,6 @@ import java.util.Date;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -55,6 +54,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private MyDatabaseHelper dbHelper;
     private String path = Environment.getExternalStorageDirectory().getPath()+"/scheme";
 
+    /**
+     * 初始化today变量
+     */
     static {
         initToday();
     }
@@ -162,6 +164,12 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         db.close();
     }
 
+    private void saveScheme(Scheme s){
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        DataUpdater.updateScheme(db, s);
+        db.close();
+    }
+
     /**
      * 添加一个新的计划项目到本页的计划组
      * @param target 要加入的计划
@@ -204,6 +212,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 if (arrayList!=null) {
                     for(Scheme s:arrayList){
                         if (null!=s)
+                            saveScheme(s);
                             LogUtils.e("load",s.toLongString());
                     }
                 }
