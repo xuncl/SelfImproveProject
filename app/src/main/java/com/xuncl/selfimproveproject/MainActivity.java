@@ -205,17 +205,17 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 showSchemeDetail();
                 //点击标题则存数据，先注释掉，因为不小心点到会花很长时间保存
                 //TODO 以后单独做一个按钮出来
-//                saveFile(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(), new Date()));
+                saveFile(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(), new Date()));
 //                LogUtils.e("save",path);
-                Object obj = loadFile(path);
-                ArrayList<Scheme> arrayList = (ArrayList<Scheme>)obj;
-                if (arrayList!=null) {
-                    for(Scheme s:arrayList){
-                        if (null!=s)
-                            saveScheme(s);
-                            LogUtils.e("load",s.toLongString());
-                    }
-                }
+//                Object obj = loadFile(path);
+//                ArrayList<Scheme> arrayList = (ArrayList<Scheme>)obj;
+//                if (arrayList!=null) {
+//                    for(Scheme s:arrayList){
+//                        if (null!=s)
+//                            saveScheme(s);
+//                            LogUtils.e("load",s.toLongString());
+//                    }
+//                }
                 break;
             default:
                 break;
@@ -434,7 +434,8 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     public void saveFile(Serializable object) {
         FileOutputStream out = null;
         ObjectOutputStream oos = null;
-
+        ArrayList<Scheme> arrayList = (ArrayList<Scheme>)object;
+        LogUtils.e("savefile",""+arrayList.size());
         try {
             // sdcard时会报分隔符错误
 //            out = openFileOutput(path, Context.MODE_PRIVATE);

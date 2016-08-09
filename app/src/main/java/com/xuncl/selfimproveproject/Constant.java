@@ -14,7 +14,7 @@ public final class Constant
     
     public static final String DATE_FORMAT_PATTERN = "yyyy/MM/dd";
     public static final String TIME_FORMAT_PATTERN = "HH:mm";
-    public static final String THE_VERY_FIRST_DAY = "2016/07/16";
+    public static final String THE_VERY_FIRST_DAY = "2016/07/01";
     // 目前是模拟器测试参数，在现实环境里注意修改这个参数
 //    public static final String THE_VERY_FIRST_DAY = "2015/09/07";
 
