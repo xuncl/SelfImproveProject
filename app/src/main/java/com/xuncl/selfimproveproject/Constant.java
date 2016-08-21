@@ -61,5 +61,7 @@ public final class Constant
     public static final String UMENG_APPKEY = "5790e94e67e58e1d6900121b";
     public static final String UMENG_CHANNELID = "Manual";
 
+    public static final String BASE_URL = "http://www.kuaimei56.com";
+
     public static final int SCHEME_PREV_DAY_MAX = 21;
 }
