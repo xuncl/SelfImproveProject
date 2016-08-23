@@ -17,6 +17,15 @@
             android:background="@drawable/title_back"
             android:contentDescription="@string/title_back_description" />
 
+        <ImageView
+            android:id="@+id/title_update"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="2dip"
+            android:background="@drawable/title_update"
+            android:contentDescription="@string/title_add_description" />
+
         <TextView
             android:id="@+id/title_text"
             android:layout_width="0dp"
@@ -37,6 +46,7 @@
             android:background="@drawable/title_add"
             android:contentDescription="@string/title_add_description" />
 
+
         <ImageView
             android:id="@+id/title_refresh"
             android:layout_width="wrap_content"
@@ -46,7 +56,13 @@
             android:background="@drawable/title_refresh"
             android:contentDescription="@string/title_refresh_description" />
     </LinearLayout>
-    
+
+    <ProgressBar android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:id="@+id/bar"
+        style="@android:style/Widget.ProgressBar.Horizontal"/>
+
 
     <ListView
         android:id="@+id/target_list_view"

@@ -71,7 +71,7 @@ public class DataFetcher
         if (stackCount<=0){
             return new Scheme();
         }
-        LogUtils.e("scheme", "stackCount now-------："+stackCount+" - "+sdf.format(prevDay));
+//        LogUtils.e("scheme", "stackCount now-------："+stackCount+" - "+sdf.format(prevDay));
 
         Scheme scheme = fetchOnceByDate(db, sdf.format(prevDay));
         if (scheme==null) {
@@ -83,7 +83,7 @@ public class DataFetcher
     }
 
     public static ArrayList<Scheme> getAllScheme(SQLiteDatabase db, Date today){
-        LogUtils.e("scheme", "Start get All!");
+//        LogUtils.e("scheme", "Start get All!");
 
         ArrayList<Scheme> allScheme = new ArrayList<>();
         Date thisDay = today;
@@ -98,7 +98,7 @@ public class DataFetcher
             allScheme.add(fetchScheme(db,thisDay));
             thisDay = Tools.prevDay(thisDay);
         }
-        LogUtils.e("scheme", "End get All!");
+//        LogUtils.e("scheme", "End get All!");
 
         return allScheme;
     }
@@ -118,12 +118,12 @@ public class DataFetcher
         if (cursor.moveToFirst())
         {
             Scheme scheme = buildSchemeByCursor(cursor);
-            LogUtils.e("scheme", "Is return cursor Null? - "+scheme+" - "+date);
+//            LogUtils.e("scheme", "Is return cursor Null? - "+scheme+" - "+date);
             return scheme;
         }
         else
         {
-            LogUtils.e("scheme", "Actually return Null? "+date);
+//            LogUtils.e("scheme", "Actually return Null? "+date);
 
             return null;
         }

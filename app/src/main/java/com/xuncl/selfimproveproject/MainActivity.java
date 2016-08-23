@@ -10,6 +10,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 
 import android.app.AlertDialog;
@@ -20,6 +21,8 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +58,12 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private static Date today = new Date();
     private MyDatabaseHelper dbHelper;
     private String path = Environment.getExternalStorageDirectory().getPath()+"/scheme";
+    //该程序模拟天成长度为100的数组
+    private int[] data = new int[100];
+    int hasData = 0;
+    // 记录ProgressBar的完成进度
+    int progressStatus = 0;
+
 
     /**
      * 初始化today变量
@@ -81,8 +91,8 @@ public class MainActivity extends BaseActivity implements OnClickListener {
      * 初始化today变量，使其为今天的23点59分，用于右划边界的判断
      */
     private static void initToday() {
-        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN);
-        SimpleDateFormat sdf2 = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN +" HH:mm");
+        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN, Locale.CHINA);
+        SimpleDateFormat sdf2 = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN +" HH:mm", Locale.CHINA);
         String timeStr = sdf.format(today);
         timeStr = timeStr + " 23:59";
         try {
@@ -98,12 +108,56 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private void initTitle() {
         ImageView titleBack = (ImageView) findViewById(R.id.title_back);
         titleBack.setOnClickListener(this);
+        ImageView titleUpdate = (ImageView) findViewById(R.id.title_update);
+        titleUpdate.setOnClickListener(this);
         ImageView titleAdd = (ImageView) findViewById(R.id.title_add);
         titleAdd.setOnClickListener(this);
         ImageView titleRefresh = (ImageView) findViewById(R.id.title_refresh);
         titleRefresh.setOnClickListener(this);
         TextView titleText = (TextView) findViewById(R.id.title_text);
         titleText.setOnClickListener(this);
+        initBar();
+    }
+
+
+    /**
+     * 初始化进度条
+     */
+    private void initBar(){
+        final ProgressBar bar = (ProgressBar) findViewById(R.id.bar);
+        // 创建一个复杂更新进度的Handler
+        final Handler handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == 0x111) {
+                    bar.setProgress(progressStatus);
+                }
+            }
+        };
+        // 启动线程来执行任务
+        new Thread() {
+            public void run() {
+                while (progressStatus < 100) {
+                    // 获取耗时的完成百分比
+                    progressStatus = doWork();
+                    Message m = new Message();
+                    m.what = 0x111;
+                    // 发送消息到Handler
+                    handler.sendMessage(m);
+                }
+            }
+        }.start();
+    }
+
+    //模拟一个耗时的操作
+    private int doWork() {
+        data[hasData++] = (int) (Math.random() * 100);
+        try {
+            Thread.sleep(100);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return hasData;
     }
 
     /**
@@ -202,12 +256,12 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 saveAll();
                 fetchAll();
                 break;
-            case R.id.title_text:
-                showSchemeDetail();
-                //点击标题则存数据，先注释掉，因为不小心点到会花很长时间保存
+            case R.id.title_update:
                 //TODO 以后单独做一个按钮出来
+
+                HttpUtils.postJson(scheme);
+                //点击标题则存数据，先注释掉，因为不小心点到会花很长时间保存
 //                saveFile(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(), new Date()));
-                HttpUtils.postJson(scheme.toLongString());
 //                LogUtils.e("save",path);
 //                Object obj = loadFile(path);
 //                ArrayList<Scheme> arrayList = (ArrayList<Scheme>)obj;
@@ -218,6 +272,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 //                            LogUtils.e("load",s.toLongString());
 //                    }
 //                }
+                break;
+            case R.id.title_text:
+                showSchemeDetail();
                 break;
             default:
                 break;

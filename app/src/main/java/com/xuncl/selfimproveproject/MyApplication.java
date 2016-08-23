@@ -15,7 +15,7 @@ public class MyApplication extends Application
     {
         super.onCreate();
         context = getApplicationContext();
-        queue = Volley.newRequestQueue(getApplicationContext());
+        queue = Volley.newRequestQueue(context);
     }
 
     public static Context getContext()

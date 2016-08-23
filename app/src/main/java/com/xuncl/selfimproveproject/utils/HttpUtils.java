@@ -12,11 +12,17 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.xuncl.selfimproveproject.Constant;
 import com.xuncl.selfimproveproject.MyApplication;
+import com.xuncl.selfimproveproject.service.Agenda;
+import com.xuncl.selfimproveproject.service.Scheme;
+import com.xuncl.selfimproveproject.service.Target;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -27,50 +33,107 @@ public class HttpUtils {
 
     private static final String TAG = "HTTP_UTILS";
 
-    public static void postJson(String str) {
-        String url = "/Temp/targets";
-        JsonObjectRequest jsonObjectRequest;
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("content", str);
-        } catch (JSONException e1) {
-            e1.printStackTrace();
-        }
-        //打印前台向后台要提交的post数据
-        LogUtils.e(TAG, jsonObject.toString());
-        //发送post请求
-        LogUtils.e(TAG, "url:" + Constant.BASE_URL + url);
-        try {
-            jsonObjectRequest = new JsonObjectRequest(
-                    Request.Method.POST, Constant.BASE_URL+url, jsonObject,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            //打印请求后获取的json数据
-                            LogUtils.e(TAG, "Response:"+response.toString());
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError arg0) {
-                    LogUtils.e(TAG, "ErrorResponse:"+arg0.toString());
-                }
-            })
-              {
+    public static void showJson(Scheme scheme) {
+        ArrayList<Target> targets = scheme.getTargets();
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN, Locale.CHINA);
+        SimpleDateFormat timeFormat = new SimpleDateFormat(Constant.TIME_FORMAT_PATTERN, Locale.CHINA);
+        for (Target target : targets) {
+            JSONObject jsonObject = new JSONObject();
 
-                @Override
-                public String getBodyContentType() {
-                    return "application/json";
+            try {
+                jsonObject.put(Constant.COL_NAME, target.getName());
+                jsonObject.put(Constant.COL_MDATE, dateFormat.format(target.getTime()));
+                jsonObject.put(Constant.COL_STARTTIME, timeFormat.format(target.getTime()));
+                jsonObject.put(Constant.COL_ENDTIME, timeFormat.format(target.getEndTime()));
+                jsonObject.put(Constant.COL_DESCRIPTION, target.getDescription());
+                jsonObject.put(Constant.COL_MVALUE, target.getValue());
+                if (target instanceof Agenda) {
+                    Agenda agenda = (Agenda) target;
+                    jsonObject.put(Constant.COL_ISAGENDA, 1);
+                    jsonObject.put(Constant.COL_MINTERVAL, agenda.getInterval());
+                    jsonObject.put(Constant.COL_MMAXVALUE, agenda.getMaxValue());
+                } else {
+                    jsonObject.put(Constant.COL_ISAGENDA, 0);
+                    jsonObject.put(Constant.COL_MINTERVAL, 0);
+                    jsonObject.put(Constant.COL_MMAXVALUE, target.getValue());
                 }
+                jsonObject.put(Constant.COL_TODAYVALUE, scheme.getTodayValue());
+                jsonObject.put(Constant.COL_YESTERDAYVALUE, scheme.getYesterdayValue());
+                jsonObject.put(Constant.COL_ISDONE, target.isDone() ? 1 : 0);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-            ;
-            MyApplication.getHttpQueue().add(jsonObjectRequest);
-        } catch (Exception e) {
-            e.printStackTrace();
+
+            LogUtils.e(TAG, jsonObject.toString());
         }
-//        MyApplication.getHttpQueue().start(); //不需要
     }
 
+    public static void postJson(Scheme scheme) {
+        String url = "/Raw/targets";
+        JsonObjectRequest jsonObjectRequest;
+        ArrayList<Target> targets = scheme.getTargets();
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN, Locale.CHINA);
+        SimpleDateFormat timeFormat = new SimpleDateFormat(Constant.TIME_FORMAT_PATTERN, Locale.CHINA);
+        for (Target target : targets) {
+            JSONObject jsonObject = new JSONObject();
 
+            try {
+                jsonObject.put(Constant.COL_NAME, target.getName());
+                jsonObject.put(Constant.COL_MDATE, dateFormat.format(target.getTime()));
+                jsonObject.put(Constant.COL_STARTTIME, timeFormat.format(target.getTime()));
+                jsonObject.put(Constant.COL_ENDTIME, timeFormat.format(target.getEndTime()));
+                jsonObject.put(Constant.COL_DESCRIPTION, target.getDescription());
+                jsonObject.put(Constant.COL_MVALUE, target.getValue());
+                if (target instanceof Agenda) {
+                    Agenda agenda = (Agenda) target;
+                    jsonObject.put(Constant.COL_ISAGENDA, 1);
+                    jsonObject.put(Constant.COL_MINTERVAL, agenda.getInterval());
+                    jsonObject.put(Constant.COL_MMAXVALUE, agenda.getMaxValue());
+                } else {
+                    jsonObject.put(Constant.COL_ISAGENDA, 0);
+                    jsonObject.put(Constant.COL_MINTERVAL, 0);
+                    jsonObject.put(Constant.COL_MMAXVALUE, target.getValue());
+                }
+                jsonObject.put(Constant.COL_TODAYVALUE, scheme.getTodayValue());
+                jsonObject.put(Constant.COL_YESTERDAYVALUE, scheme.getYesterdayValue());
+                jsonObject.put(Constant.COL_ISDONE, target.isDone() ? 1 : 0);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            //打印前台向后台要提交的post数据
+            LogUtils.e(TAG, jsonObject.toString());
+            //发送post请求
+            LogUtils.e(TAG, "url:" + Constant.BASE_URL + url);
+            try {
+                jsonObjectRequest = new JsonObjectRequest(
+                        Request.Method.POST, Constant.BASE_URL + url, jsonObject,
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                //打印请求后获取的json数据
+                                LogUtils.e(TAG, "Response:" + response.toString());
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError arg0) {
+                        LogUtils.e(TAG, "ErrorResponse:" + arg0.toString());
+                    }
+                }) {
+
+                    @Override
+                    public String getBodyContentType() {
+                        return "application/json";
+                    }
+                }
+                ;
+                LogUtils.e("Test1", MyApplication.getHttpQueue().toString());
+                MyApplication.getHttpQueue().add(jsonObjectRequest);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+//        MyApplication.getHttpQueue().start(); //不需要
+        }
+    }
 
 
     public static void volley_Post(final Context context) {
