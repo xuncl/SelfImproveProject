@@ -58,11 +58,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private static Date today = new Date();
     private MyDatabaseHelper dbHelper;
     private String path = Environment.getExternalStorageDirectory().getPath()+"/scheme";
-    //该程序模拟天成长度为100的数组
-    private int[] data = new int[100];
-    int hasData = 0;
     // 记录ProgressBar的完成进度
     int progressStatus = 0;
+
+    ProgressBar bar;
 
 
     /**
@@ -124,7 +123,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
      * 初始化进度条
      */
     private void initBar(){
-        final ProgressBar bar = (ProgressBar) findViewById(R.id.bar);
+        bar = (ProgressBar) findViewById(R.id.bar);
+    }
+
+    private void startUpdate(){
         // 创建一个复杂更新进度的Handler
         final Handler handler = new Handler() {
             @Override
@@ -134,12 +136,22 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 }
             }
         };
+
         // 启动线程来执行任务
         new Thread() {
             public void run() {
-                while (progressStatus < 100) {
+                Date veryFirstDay = Tools.parseTimeByDate(Constant.DEFAULT_DATE,Constant.DEFAULT_TIME);
+                Date thisDay = Tools.parseTimeByDate(today,Constant.DEFAULT_TIME);
+                int intervalDays = Tools.daysBetween(veryFirstDay, thisDay);
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                while (thisDay.after(veryFirstDay)) {
                     // 获取耗时的完成百分比
-                    progressStatus = doWork();
+                    int interval = Tools.daysBetween(veryFirstDay, thisDay);
+                    progressStatus = 100*(intervalDays-interval)/intervalDays;
+                    Scheme thisScheme = DataFetcher.fetchScheme(db,thisDay);
+                    HttpUtils.postJson(thisScheme);
+                    thisDay=Tools.prevDay(thisDay);
+                    LogUtils.e("update",""+interval+"/"+intervalDays+" has been updated. now is "+thisDay);
                     Message m = new Message();
                     m.what = 0x111;
                     // 发送消息到Handler
@@ -147,17 +159,8 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 }
             }
         }.start();
-    }
 
-    //模拟一个耗时的操作
-    private int doWork() {
-        data[hasData++] = (int) (Math.random() * 100);
-        try {
-            Thread.sleep(100);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return hasData;
+
     }
 
     /**
@@ -258,8 +261,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 break;
             case R.id.title_update:
                 //TODO 以后单独做一个按钮出来
-
-                HttpUtils.postJson(scheme);
+                startUpdate();
                 //点击标题则存数据，先注释掉，因为不小心点到会花很长时间保存
 //                saveFile(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(), new Date()));
 //                LogUtils.e("save",path);

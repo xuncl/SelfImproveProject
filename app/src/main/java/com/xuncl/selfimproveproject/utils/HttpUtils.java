@@ -100,10 +100,6 @@ public class HttpUtils {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            //打印前台向后台要提交的post数据
-            LogUtils.e(TAG, jsonObject.toString());
-            //发送post请求
-            LogUtils.e(TAG, "url:" + Constant.BASE_URL + url);
             try {
                 jsonObjectRequest = new JsonObjectRequest(
                         Request.Method.POST, Constant.BASE_URL + url, jsonObject,
@@ -126,7 +122,6 @@ public class HttpUtils {
                     }
                 }
                 ;
-                LogUtils.e("Test1", MyApplication.getHttpQueue().toString());
                 MyApplication.getHttpQueue().add(jsonObjectRequest);
             } catch (Exception e) {
                 e.printStackTrace();

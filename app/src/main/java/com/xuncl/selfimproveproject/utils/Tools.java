@@ -2,6 +2,7 @@ package com.xuncl.selfimproveproject.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 
@@ -103,5 +104,22 @@ public class Tools
         return null;
     }
 
+    /**
+
+     * 计算两个日期之间相差的天数
+     * @param date1 靠前的日期
+     * @param date2 靠后的日期
+     * @return 两个日期相隔的天数差
+     */
+    public static int daysBetween(Date date1,Date date2)
+    {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date1);
+        long time1 = cal.getTimeInMillis();
+        cal.setTime(date2);
+        long time2 = cal.getTimeInMillis();
+        long between_days=(time2-time1)/(1000*3600*24);
+        return Integer.parseInt(String.valueOf(between_days));
+    }
 
 }
