@@ -60,7 +60,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private String path = Environment.getExternalStorageDirectory().getPath()+"/scheme";
     // 记录ProgressBar的完成进度
     int progressStatus = 0;
-
+    TextView titleText;
     ProgressBar bar;
 
 
@@ -113,7 +113,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         titleAdd.setOnClickListener(this);
         ImageView titleRefresh = (ImageView) findViewById(R.id.title_refresh);
         titleRefresh.setOnClickListener(this);
-        TextView titleText = (TextView) findViewById(R.id.title_text);
+        titleText = (TextView) findViewById(R.id.title_text);
         titleText.setOnClickListener(this);
         initBar();
     }
@@ -126,42 +126,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         bar = (ProgressBar) findViewById(R.id.bar);
     }
 
-    private void startUpdate(){
-        // 创建一个复杂更新进度的Handler
-        final Handler handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                if (msg.what == 0x111) {
-                    bar.setProgress(progressStatus);
-                }
-            }
-        };
-
-        // 启动线程来执行任务
-        new Thread() {
-            public void run() {
-                Date veryFirstDay = Tools.parseTimeByDate(Constant.DEFAULT_DATE,Constant.DEFAULT_TIME);
-                Date thisDay = Tools.parseTimeByDate(today,Constant.DEFAULT_TIME);
-                int intervalDays = Tools.daysBetween(veryFirstDay, thisDay);
-                SQLiteDatabase db = dbHelper.getWritableDatabase();
-                while (thisDay.after(veryFirstDay)) {
-                    // 获取耗时的完成百分比
-                    int interval = Tools.daysBetween(veryFirstDay, thisDay);
-                    progressStatus = 100*(intervalDays-interval)/intervalDays;
-                    Scheme thisScheme = DataFetcher.fetchScheme(db,thisDay);
-                    HttpUtils.postJson(thisScheme);
-                    thisDay=Tools.prevDay(thisDay);
-                    LogUtils.e("update",""+interval+"/"+intervalDays+" has been updated. now is "+thisDay);
-                    Message m = new Message();
-                    m.what = 0x111;
-                    // 发送消息到Handler
-                    handler.sendMessage(m);
-                }
-            }
-        }.start();
-
-
-    }
 
     /**
      * 初始化今日的计划
@@ -186,7 +150,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private void setHomeSchemeByDate(Date today) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         scheme = DataFetcher.fetchScheme(db, today);
-        TextView titleText = (TextView) findViewById(R.id.title_text);
         titleText.setText(scheme.toShortString());
         initList();
         db.close();
@@ -261,7 +224,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 break;
             case R.id.title_update:
                 //TODO 以后单独做一个按钮出来
-                startUpdate();
+//                startUpdate();
+//                startDownload();
+                showSchemeDetail();
                 //点击标题则存数据，先注释掉，因为不小心点到会花很长时间保存
 //                saveFile(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(), new Date()));
 //                LogUtils.e("save",path);
@@ -281,6 +246,131 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             default:
                 break;
         }
+    }
+
+
+    /**
+     * 上传所有历史scheme
+     */
+    private void startUpdate(){
+        // 创建一个复杂更新进度的Handler
+        final Handler handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == 0x111) {
+                    bar.setProgress(progressStatus);
+                }
+            }
+        };
+
+        // 启动线程来执行任务
+        new Thread() {
+            public void run() {
+                Date veryFirstDay = Tools.parseTimeByDate(Constant.DEFAULT_DATE,Constant.DEFAULT_TIME);
+                Date thisDay = Tools.parseTimeByDate(today,Constant.DEFAULT_TIME);
+                int intervalDays = Tools.daysBetween(veryFirstDay, thisDay);
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN,Locale.CHINA);
+                while (!thisDay.before(veryFirstDay)) {
+                    try
+                    {
+                        Thread.sleep(1000);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    // 获取耗时的完成百分比
+                    int interval = Tools.daysBetween(veryFirstDay, thisDay);
+                    progressStatus = 100*(intervalDays-interval)/intervalDays;
+                    Scheme thisScheme = DataFetcher.fetchScheme(db,thisDay);
+                    boolean isEmpty = false;
+                    if (thisScheme!=null){
+                        if (thisScheme.getTargets().size()<1){
+//                            LogUtils.e("update", ""+sdf.format(thisDay)+"'s target's is EMPTY!");
+                            isEmpty = true;
+                        }
+                    }else{
+                        LogUtils.e("update", ""+sdf.format(thisDay)+"'s target's is NULLLLLLL!");
+                    }
+                    HttpUtils.postSchemeJson(thisScheme);
+                    final String showing = ""+interval+"/"+intervalDays+" "+sdf.format(thisDay)
+                            +(isEmpty?" EMPTY":" updating");
+                    runOnUiThread(new Runnable()
+                    {
+
+                        @Override
+                        public void run()
+                        {
+                            titleText.setText(showing);
+                        }
+                    });
+
+                    thisDay=Tools.prevDay(thisDay);
+                    Message m = new Message();
+                    m.what = 0x111;
+                    // 发送消息到Handler
+                    handler.sendMessage(m);
+                }
+                db.close();
+            }
+        }.start();
+
+
+    }
+
+    private void startDownload() {
+        // 创建一个复杂更新进度的Handler
+        final Handler handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == 0x111) {
+                    bar.setProgress(progressStatus);
+                }
+            }
+        };
+
+        // 启动线程来执行任务
+        new Thread() {
+            public void run() {
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                for (int i=1; i<5496;i++){
+                    try
+                    {
+                        Thread.sleep(100);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    // 获取耗时的完成百分比
+                    progressStatus = 100*(i)/5495;
+                    HttpUtils.getTargetJson(db, i);
+//                    Scheme thisScheme = DataFetcher.fetchScheme(db,thisDay);
+//                    HttpUtils.postSchemeJson(thisScheme);
+//                    thisDay=Tools.prevDay(thisDay);
+//                    LogUtils.e("update",""+interval+"/"+intervalDays+" has been updated. now is "+thisDay);
+                    final String showing = "download "+i+"/5495";
+                    runOnUiThread(new Runnable()
+                    {
+
+                        @Override
+                        public void run()
+                        {
+                            titleText.setText(showing);
+                        }
+                    });
+
+                    Message m = new Message();
+                    m.what = 0x111;
+                    // 发送消息到Handler
+                    handler.sendMessage(m);
+                }
+                db.close();
+            }
+        }.start();
+
+
     }
 
 

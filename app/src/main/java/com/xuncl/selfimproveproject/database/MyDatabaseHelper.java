@@ -31,9 +31,9 @@ public class MyDatabaseHelper extends SQLiteOpenHelper
     {
         db.execSQL(CREAT_TARGET);
         Toast.makeText(mContext, "create succeeded", Toast.LENGTH_SHORT).show();
-        FirstRunDataInput frdi = new FirstRunDataInput(db);
-        frdi.insertYesterday();
-        Toast.makeText(mContext, "insert succeeded", Toast.LENGTH_SHORT).show();
+//        FirstRunDataInput frdi = new FirstRunDataInput(db);
+//        frdi.insertYesterday();
+//        Toast.makeText(mContext, "insert succeeded", Toast.LENGTH_SHORT).show();
 
     }
 

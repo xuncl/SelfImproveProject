@@ -58,7 +58,7 @@
     </LinearLayout>
 
     <ProgressBar android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="2dp"
         android:max="100"
         android:id="@+id/bar"
         style="@android:style/Widget.ProgressBar.Horizontal"/>

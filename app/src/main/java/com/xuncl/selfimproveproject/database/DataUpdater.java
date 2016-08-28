@@ -161,6 +161,53 @@ public class DataUpdater
         return saved;
     }
     
+    /**
+     *
+     * @param db
+     * @param todayValue
+     * @param yesterdayValue
+     * @return if scheme is empty return false.
+     */
+    @SuppressLint("SimpleDateFormat")
+    public static boolean insertRawTarget(SQLiteDatabase db, int todayValue, int yesterdayValue, Target target)
+    {
+        boolean saved = false;
+        ContentValues values = new ContentValues();
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN);
+        SimpleDateFormat timeFormat = new SimpleDateFormat(Constant.TIME_FORMAT_PATTERN);
+
+        saved = true;
+        values.put(Constant.COL_NAME, target.getName());
+        values.put(Constant.COL_MDATE, dateFormat.format(target.getTime()));
+        values.put(Constant.COL_STARTTIME, timeFormat.format(target.getTime()));
+        values.put(Constant.COL_ENDTIME, timeFormat.format(target.getEndTime()));
+        values.put(Constant.COL_DESCRIPTION, target.getDescription());
+        values.put(Constant.COL_MVALUE, target.getValue());
+        if (target instanceof Agenda)
+        {
+            Agenda agenda = (Agenda) target;
+            values.put(Constant.COL_ISAGENDA, 1);
+            values.put(Constant.COL_MINTERVAL, agenda.getInterval());
+            values.put(Constant.COL_MMAXVALUE, agenda.getMaxValue());
+        }
+        else
+        {
+            values.put(Constant.COL_ISAGENDA, 0);
+            values.put(Constant.COL_MINTERVAL, 0);
+            values.put(Constant.COL_MMAXVALUE, target.getValue());
+        }
+        values.put(Constant.COL_TODAYVALUE, todayValue);
+        values.put(Constant.COL_YESTERDAYVALUE, yesterdayValue);
+        values.put(Constant.COL_ISDONE, target.isDone() ? 1 : 0);
+        db.beginTransaction();
+        db.insert(Constant.TABLE_NAME, null, values);
+        values.clear();
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        LogUtils.e(Constant.DB_TAG, "download: " + target.toString());
+        return saved;
+    }
+
 //    @SuppressLint("SimpleDateFormat")
 //    public static boolean updateTarget(SQLiteDatabase db, String name, String date, String des, String startTime, String endTime, int value, int isdone)
 //    {
