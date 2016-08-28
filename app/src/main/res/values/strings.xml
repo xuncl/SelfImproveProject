@@ -23,5 +23,7 @@
     <string name="hint_interval">坚持日常事件奖励每天的分值增量</string>
     <string name="hint_maxvalue">分值增长的上限</string>
     <string name="button_save">保存</string>
+    <string name="upload">上传数据</string>
+    <string name="download">下载数据</string>
 
 </resources>

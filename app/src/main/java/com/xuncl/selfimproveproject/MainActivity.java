@@ -23,6 +23,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,6 +34,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,6 +58,7 @@ import com.xuncl.selfimproveproject.utils.Tools;
 
 public class MainActivity extends BaseActivity implements OnClickListener {
 
+    private PopupMenu popupMenu;
     private Scheme scheme = new Scheme();
     private static Date today = new Date();
     private MyDatabaseHelper dbHelper;
@@ -107,15 +112,48 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private void initTitle() {
         ImageView titleBack = (ImageView) findViewById(R.id.title_back);
         titleBack.setOnClickListener(this);
-        ImageView titleUpdate = (ImageView) findViewById(R.id.title_update);
-        titleUpdate.setOnClickListener(this);
+        ImageView titleMore = (ImageView) findViewById(R.id.title_more);
+        titleMore.setOnClickListener(this);
         ImageView titleAdd = (ImageView) findViewById(R.id.title_add);
         titleAdd.setOnClickListener(this);
         ImageView titleRefresh = (ImageView) findViewById(R.id.title_refresh);
         titleRefresh.setOnClickListener(this);
         titleText = (TextView) findViewById(R.id.title_text);
         titleText.setOnClickListener(this);
+        initPopupMenu(titleMore);
         initBar();
+    }
+
+    private void initPopupMenu(ImageView titleMore) {
+        popupMenu = new PopupMenu(this, titleMore);
+        Menu menu = popupMenu.getMenu();
+
+        // 通过XML文件添加菜单项
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.popup_menu, menu);
+
+        // 监听事件
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.upload_btn:
+                        Toast.makeText(MainActivity.this, "upload",
+                                Toast.LENGTH_LONG).show();
+//                        startUpdate();
+                        break;
+                    case R.id.download_btn:
+                        Toast.makeText(MainActivity.this, "download",
+                                Toast.LENGTH_LONG).show();
+//                        startDownload();
+                        break;
+                    default:
+                        break;
+                }
+                return false;
+            }
+        });
     }
 
 
@@ -222,23 +260,8 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 saveAll();
                 fetchAll();
                 break;
-            case R.id.title_update:
-                //TODO 以后单独做一个按钮出来
-//                startUpdate();
-//                startDownload();
-                showSchemeDetail();
-                //点击标题则存数据，先注释掉，因为不小心点到会花很长时间保存
-//                saveFile(DataFetcher.getAllScheme(dbHelper.getWritableDatabase(), new Date()));
-//                LogUtils.e("save",path);
-//                Object obj = loadFile(path);
-//                ArrayList<Scheme> arrayList = (ArrayList<Scheme>)obj;
-//                if (arrayList!=null) {
-//                    for(Scheme s:arrayList){
-//                        if (null!=s)
-//                            saveScheme(s);
-//                            LogUtils.e("load",s.toLongString());
-//                    }
-//                }
+            case R.id.title_more:
+                popupMenu.show();
                 break;
             case R.id.title_text:
                 showSchemeDetail();

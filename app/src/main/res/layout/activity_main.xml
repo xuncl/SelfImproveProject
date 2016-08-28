@@ -18,12 +18,12 @@
             android:contentDescription="@string/title_back_description" />
 
         <ImageView
-            android:id="@+id/title_update"
+            android:id="@+id/title_more"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="2dip"
-            android:background="@drawable/title_update"
+            android:background="@drawable/title_more"
             android:contentDescription="@string/title_add_description" />
 
         <TextView
