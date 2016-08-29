@@ -64,4 +64,8 @@ public final class Constant
     public static final String BASE_URL = "http://www.kuaimei56.com";
 
     public static final int SCHEME_PREV_DAY_MAX = 21;
+
+    public static final String UPLOAD_FILE_NAME = "upload.txt";
+    public static final String DOWNLOAD_FILE_NAME = "download.txt";
+
 }

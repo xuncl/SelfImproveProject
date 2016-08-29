@@ -52,6 +52,7 @@ import com.xuncl.selfimproveproject.service.Agenda;
 import com.xuncl.selfimproveproject.service.Backlog;
 import com.xuncl.selfimproveproject.service.Scheme;
 import com.xuncl.selfimproveproject.service.Target;
+import com.xuncl.selfimproveproject.utils.FileUtils;
 import com.xuncl.selfimproveproject.utils.HttpUtils;
 import com.xuncl.selfimproveproject.utils.LogUtils;
 import com.xuncl.selfimproveproject.utils.Tools;
@@ -289,7 +290,8 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         // 启动线程来执行任务
         new Thread() {
             public void run() {
-                Date veryFirstDay = Tools.parseTimeByDate(Constant.DEFAULT_DATE,Constant.DEFAULT_TIME);
+                String fromDate = FileUtils.read(MainActivity.this,Constant.UPLOAD_FILE_NAME);
+                Date veryFirstDay = Tools.parseTimeByDate(fromDate,Constant.DEFAULT_TIME);
                 Date thisDay = Tools.parseTimeByDate(today,Constant.DEFAULT_TIME);
                 int intervalDays = Tools.daysBetween(veryFirstDay, thisDay);
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -343,6 +345,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     }
 
     private void startDownload() {
+        // TODO 改为由天数更新的方式
         // 创建一个复杂更新进度的Handler
         final Handler handler = new Handler() {
             @Override
@@ -356,6 +359,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         // 启动线程来执行任务
         new Thread() {
             public void run() {
+                String fromDate = FileUtils.read(MainActivity.this,Constant.DOWNLOAD_FILE_NAME);
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
                 for (int i=1; i<5496;i++){
                     try

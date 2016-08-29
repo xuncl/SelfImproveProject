@@ -1,6 +1,7 @@
 package com.xuncl.selfimproveproject.database;
 
 import com.xuncl.selfimproveproject.Constant;
+import com.xuncl.selfimproveproject.utils.FileUtils;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -34,6 +35,8 @@ public class MyDatabaseHelper extends SQLiteOpenHelper
 //        FirstRunDataInput frdi = new FirstRunDataInput(db);
 //        frdi.insertYesterday();
 //        Toast.makeText(mContext, "insert succeeded", Toast.LENGTH_SHORT).show();
+        FileUtils.write(mContext,Constant.DEFAULT_DATE,Constant.UPLOAD_FILE_NAME); //只执行一次
+        FileUtils.write(mContext,Constant.DEFAULT_DATE,Constant.DOWNLOAD_FILE_NAME);
 
     }
 
