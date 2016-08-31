@@ -40,7 +40,7 @@ public class HttpUtils {
 
 
     public static void postSchemeJson(Scheme scheme) {
-        String url = "/Raw/targets";
+        String url = "/index.php/Views/Raw/targets";
         JsonObjectRequest jsonObjectRequest;
         ArrayList<Target> targets = scheme.getTargets();
         SimpleDateFormat dateFormat = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN, Locale.CHINA);

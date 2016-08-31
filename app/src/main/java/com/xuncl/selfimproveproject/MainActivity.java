@@ -142,7 +142,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     case R.id.upload_btn:
                         Toast.makeText(MainActivity.this, "upload",
                                 Toast.LENGTH_LONG).show();
-//                        startUpdate();
+                        startUpdate();
                         break;
                     case R.id.download_btn:
                         Toast.makeText(MainActivity.this, "download",
@@ -292,11 +292,11 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             public void run() {
                 String fromDate = FileUtils.read(MainActivity.this,Constant.UPLOAD_FILE_NAME);
                 Date veryFirstDay = Tools.parseTimeByDate(fromDate,Constant.DEFAULT_TIME);
-                Date thisDay = Tools.parseTimeByDate(today,Constant.DEFAULT_TIME);
+                Date thisDay = Tools.parseTimeByDate(today,Constant.DEFAULT_TIME_AFTER); // 比默认时间晚一点
                 int intervalDays = Tools.daysBetween(veryFirstDay, thisDay);
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
                 SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN,Locale.CHINA);
-                while (!thisDay.before(veryFirstDay)) {
+                while (thisDay.after(veryFirstDay)) {
                     try
                     {
                         Thread.sleep(1000);
@@ -373,10 +373,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     // 获取耗时的完成百分比
                     progressStatus = 100*(i)/5495;
                     HttpUtils.getTargetJson(db, i);
-//                    Scheme thisScheme = DataFetcher.fetchScheme(db,thisDay);
-//                    HttpUtils.postSchemeJson(thisScheme);
-//                    thisDay=Tools.prevDay(thisDay);
-//                    LogUtils.e("update",""+interval+"/"+intervalDays+" has been updated. now is "+thisDay);
                     final String showing = "download "+i+"/5495";
                     runOnUiThread(new Runnable()
                     {

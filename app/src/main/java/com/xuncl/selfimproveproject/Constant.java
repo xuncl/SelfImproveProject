@@ -5,8 +5,9 @@ public final class Constant
     // 默认的空计划数据
     public static final String UNNAMED_AGENDA = "未名日常事项";
     public static final String UNNAMED_BACKLOG = "未名待办事项";
-    public static final String DEFAULT_DATE = "2015/09/06";
+    public static final String DEFAULT_DATE = "2016/08/26";
     public static final String DEFAULT_TIME = "23:30";
+    public static final String DEFAULT_TIME_AFTER = "23:35";
     public static final String DEFAULT_DESCRIPTION = "";
     
     public static final int BASED_VALUE = 2;
