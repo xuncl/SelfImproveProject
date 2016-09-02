@@ -170,7 +170,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
      * 初始化今日的计划
      */
     private void initTargets() {
-        dbHelper = new MyDatabaseHelper(this, Constant.DB_NAME, null, 1);
+        dbHelper = new MyDatabaseHelper(this, Constant.DB_NAME, null, 2);
         refreshTargets();
     }
 
@@ -337,6 +337,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     // 发送消息到Handler
                     handler.sendMessage(m);
                 }
+                FileUtils.write(MainActivity.this, sdf.format(today), Constant.UPLOAD_FILE_NAME);
                 db.close();
             }
         }.start();
@@ -345,7 +346,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     }
 
     private void startDownload() {
-        // TODO 改为由天数更新的方式
+        // TODO 改为由天数更新的方式，本地没有哪天则更新哪天
         // 创建一个复杂更新进度的Handler
         final Handler handler = new Handler() {
             @Override

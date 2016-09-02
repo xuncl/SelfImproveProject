@@ -5,7 +5,7 @@ public final class Constant
     // 默认的空计划数据
     public static final String UNNAMED_AGENDA = "未名日常事项";
     public static final String UNNAMED_BACKLOG = "未名待办事项";
-    public static final String DEFAULT_DATE = "2016/08/26";
+    public static final String DEFAULT_DATE = "2016/8/26";
     public static final String DEFAULT_TIME = "23:30";
     public static final String DEFAULT_TIME_AFTER = "23:35";
     public static final String DEFAULT_DESCRIPTION = "";
@@ -17,7 +17,7 @@ public final class Constant
     public static final String TIME_FORMAT_PATTERN = "HH:mm";
     public static final String THE_VERY_FIRST_DAY = "2016/07/01";
     // 目前是模拟器测试参数，在现实环境里注意修改这个参数
-//    public static final String THE_VERY_FIRST_DAY = "2015/09/07";
+//    public static final String THE_VERY_FIRST_DAY = "2015/10/08";
 
     
     public static final String BASE_ACTIVITY_TAG = "BaseActivity";

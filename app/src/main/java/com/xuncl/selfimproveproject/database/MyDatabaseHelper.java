@@ -43,12 +43,16 @@ public class MyDatabaseHelper extends SQLiteOpenHelper
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     {
-        // switch (oldVersion)
-        // {
-        // case 1:
-        // db.execSQL("alter table Target add column m_type integer");
-        // default:
-        // }
+         switch (oldVersion)
+         {
+         case 1:
+//         db.execSQL("alter table Target add column m_type integer");
+             FileUtils.write(mContext,Constant.DEFAULT_DATE,Constant.UPLOAD_FILE_NAME); //只执行一次
+             FileUtils.write(mContext,Constant.DEFAULT_DATE,Constant.DOWNLOAD_FILE_NAME);
+             break;
+         default:
+             break;
+         }
     }
 
 }
