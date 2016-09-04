@@ -316,7 +316,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                             isEmpty = true;
                         }
                     }else{
-                        LogUtils.e("update", ""+sdf.format(thisDay)+"'s target's is NULLLLLLL!");
+                        LogUtils.e("update", ""+sdf.format(thisDay)+"'s target's is NULL!");
                     }
                     HttpUtils.postSchemeJson(thisScheme);
                     final String showing = ""+interval+"/"+intervalDays+" "+sdf.format(thisDay)
