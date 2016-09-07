@@ -115,8 +115,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         titleBack.setOnClickListener(this);
         ImageView titleMore = (ImageView) findViewById(R.id.title_more);
         titleMore.setOnClickListener(this);
-        ImageView titleAdd = (ImageView) findViewById(R.id.title_add);
-        titleAdd.setOnClickListener(this);
         ImageView titleRefresh = (ImageView) findViewById(R.id.title_refresh);
         titleRefresh.setOnClickListener(this);
         titleText = (TextView) findViewById(R.id.title_text);
@@ -148,6 +146,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                         Toast.makeText(MainActivity.this, "download",
                                 Toast.LENGTH_LONG).show();
 //                        startDownload();
+                        break;
+                    case R.id.add_target:
+                        onAddTarget();
                         break;
                     default:
                         break;
@@ -254,9 +255,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 // will saveFile data at life cycle
                 ActivityCollector.finishAll();
                 break;
-            case R.id.title_add:
-                onAddTarget();
-                break;
             case R.id.title_refresh:
                 saveAll();
                 fetchAll();
@@ -291,6 +289,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         new Thread() {
             public void run() {
                 String fromDate = FileUtils.read(MainActivity.this,Constant.UPLOAD_FILE_NAME);
+                LogUtils.e("UPDATE","form date is "+fromDate);
                 Date veryFirstDay = Tools.parseTimeByDate(fromDate,Constant.DEFAULT_TIME);
                 Date thisDay = Tools.parseTimeByDate(today,Constant.DEFAULT_TIME_AFTER); // 比默认时间晚一点
                 int intervalDays = Tools.daysBetween(veryFirstDay, thisDay);
@@ -299,6 +298,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 while (thisDay.after(veryFirstDay)) {
                     try
                     {
+                        // 提交太快会被后台进程杀掉
                         Thread.sleep(1000);
                     }
                     catch (InterruptedException e)
@@ -307,6 +307,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     }
                     // 获取耗时的完成百分比
                     int interval = Tools.daysBetween(veryFirstDay, thisDay);
+                    if (interval<1) break;
                     progressStatus = 100*(intervalDays-interval)/intervalDays;
                     Scheme thisScheme = DataFetcher.fetchScheme(db,thisDay);
                     boolean isEmpty = false;
@@ -337,11 +338,21 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     // 发送消息到Handler
                     handler.sendMessage(m);
                 }
+
+
                 FileUtils.write(MainActivity.this, sdf.format(today), Constant.UPLOAD_FILE_NAME);
                 db.close();
-            }
-        }.start();
 
+                bar.setProgress(0);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        titleText.setText(scheme.toShortString());
+                    }
+                });
+            }
+
+        }.start();
 
     }
 

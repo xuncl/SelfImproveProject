@@ -1,20 +1,14 @@
 package com.xuncl.selfimproveproject.utils;
 
 
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.provider.ContactsContract;
-import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.xuncl.selfimproveproject.Constant;
 import com.xuncl.selfimproveproject.MyApplication;
-import com.xuncl.selfimproveproject.database.DataFetcher;
 import com.xuncl.selfimproveproject.database.DataUpdater;
 import com.xuncl.selfimproveproject.service.Agenda;
 import com.xuncl.selfimproveproject.service.Backlog;
@@ -26,9 +20,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * Created by CLEVO on 2016/7/25.

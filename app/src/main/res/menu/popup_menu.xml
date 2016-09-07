@@ -11,4 +11,8 @@
         android:id="@+id/download_btn"
         android:title="@string/download" />
 
+    <item
+        android:id="@+id/add_target"
+        android:title="@string/add_target" />
+
 </menu>
