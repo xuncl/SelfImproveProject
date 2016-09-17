@@ -275,6 +275,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
      * 上传所有历史scheme
      */
     private void startUpdate(){
+        // TODO 东西太杂，重构抽出去
         // 创建一个复杂更新进度的Handler
         final Handler handler = new Handler() {
             @Override
@@ -307,8 +308,12 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     }
                     // 获取耗时的完成百分比
                     int interval = Tools.daysBetween(veryFirstDay, thisDay);
-                    if (interval<1) break;
-                    progressStatus = 100*(intervalDays-interval)/intervalDays;
+                    if (interval<0) break;
+                    if (interval==0){
+                        progressStatus = 100;
+                    }else{
+                        progressStatus = 100*(intervalDays-interval)/intervalDays;
+                    }
                     Scheme thisScheme = DataFetcher.fetchScheme(db,thisDay);
                     boolean isEmpty = false;
                     if (thisScheme!=null){
@@ -343,16 +348,23 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 FileUtils.write(MainActivity.this, sdf.format(today), Constant.UPLOAD_FILE_NAME);
                 db.close();
 
-                bar.setProgress(0);
+//                bar.setProgress(0);// 异步的，导致进度条无法置零
+                progressStatus = 0;
+                Message m = new Message();
+                m.what = 0x111;
+                // 发送消息到Handler
+                handler.sendMessage(m);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         titleText.setText(scheme.toShortString());
+                        Toast.makeText(MainActivity.this,"Upload success.",Toast.LENGTH_SHORT).show();
                     }
                 });
+
             }
 
-        }.start();
+}.start();
 
     }
 
