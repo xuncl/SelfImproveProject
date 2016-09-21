@@ -9,13 +9,18 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
+import android.app.PendingIntent;
+import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -37,6 +42,7 @@ import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
@@ -48,6 +54,7 @@ import com.xuncl.selfimproveproject.database.DataDeleter;
 import com.xuncl.selfimproveproject.database.DataFetcher;
 import com.xuncl.selfimproveproject.database.DataUpdater;
 import com.xuncl.selfimproveproject.database.MyDatabaseHelper;
+import com.xuncl.selfimproveproject.receivers.AlarmReceiver;
 import com.xuncl.selfimproveproject.service.Agenda;
 import com.xuncl.selfimproveproject.service.Backlog;
 import com.xuncl.selfimproveproject.service.Scheme;
@@ -63,11 +70,15 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private Scheme scheme = new Scheme();
     private static Date today = new Date();
     private MyDatabaseHelper dbHelper;
-    private String path = Environment.getExternalStorageDirectory().getPath()+"/scheme";
+    private String path = Environment.getExternalStorageDirectory().getPath() + "/scheme";
     // 记录ProgressBar的完成进度
     int progressStatus = 0;
     TextView titleText;
     ProgressBar bar;
+
+    private AlarmManager alarmManager = null;
+    Calendar cal = Calendar.getInstance();
+    final int DIALOG_TIME = -1;    //设置对话框id
 
 
     /**
@@ -83,8 +94,11 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
 
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
         initTitle();
         initTargets();
+        initAlarm();
 
         // 集成友盟统计
         MobclickAgent.UMAnalyticsConfig config = new MobclickAgent.UMAnalyticsConfig(this,
@@ -92,12 +106,30 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         MobclickAgent.startWithConfigure(config);
     }
 
+    private void initAlarm() {
+        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN, Locale.CHINA);
+        String timeStr = sdf.format(today);
+        String oldTime = FileUtils.read(MainActivity.this, Constant.ALARM_FILE_NAME);
+        if(!timeStr.equals(oldTime)){
+            Calendar c = Calendar.getInstance();//获取日期对象
+            long millis = today.getTime()-System.currentTimeMillis();
+            long rand = (long)(Math.random()*millis);
+            c.setTimeInMillis(System.currentTimeMillis()+5000);        //设置Calendar对象
+            Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);    //创建Intent对象
+            PendingIntent pi = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);    //创建PendingIntent
+            alarmManager.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pi);        //设置闹钟
+            Toast.makeText(MainActivity.this, "闹钟设置成功"+c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE), Toast.LENGTH_LONG).show();//提示用户
+            LogUtils.e("Alarm","Alarm at "+c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE));
+            FileUtils.write(this,timeStr,Constant.ALARM_FILE_NAME);
+        }
+    }
+
     /**
      * 初始化today变量，使其为今天的23点59分，用于右划边界的判断
      */
     private static void initToday() {
         SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN, Locale.CHINA);
-        SimpleDateFormat sdf2 = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN +" HH:mm", Locale.CHINA);
+        SimpleDateFormat sdf2 = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN + " HH:mm", Locale.CHINA);
         String timeStr = sdf.format(today);
         timeStr = timeStr + " 23:59";
         try {
@@ -146,6 +178,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                         Toast.makeText(MainActivity.this, "download",
                                 Toast.LENGTH_LONG).show();
 //                        startDownload();
+                        showDialog(DIALOG_TIME);//显示时间选择对话框
                         break;
                     case R.id.add_target:
                         onAddTarget();
@@ -162,7 +195,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     /**
      * 初始化进度条
      */
-    private void initBar(){
+    private void initBar() {
         bar = (ProgressBar) findViewById(R.id.bar);
     }
 
@@ -171,7 +204,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
      * 初始化今日的计划
      */
     private void initTargets() {
-        dbHelper = new MyDatabaseHelper(this, Constant.DB_NAME, null, 2);
+        dbHelper = new MyDatabaseHelper(this, Constant.DB_NAME, null, 3);
         refreshTargets();
     }
 
@@ -185,6 +218,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     /**
      * 将指定的日期的计划显示在主页上
+     *
      * @param today 日期
      */
     private void setHomeSchemeByDate(Date today) {
@@ -225,7 +259,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         db.close();
     }
 
-    private void saveScheme(Scheme s){
+    private void saveScheme(Scheme s) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         DataUpdater.updateScheme(db, s);
         db.close();
@@ -233,6 +267,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     /**
      * 添加一个新的计划项目到本页的计划组
+     *
      * @param target 要加入的计划
      */
     private void addNewTarget(Target target) {
@@ -274,7 +309,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     /**
      * 上传所有历史scheme
      */
-    private void startUpdate(){
+    private void startUpdate() {
         // TODO 东西太杂，重构抽出去
         // 创建一个复杂更新进度的Handler
         final Handler handler = new Handler() {
@@ -289,55 +324,50 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         // 启动线程来执行任务
         new Thread() {
             public void run() {
-                String fromDate = FileUtils.read(MainActivity.this,Constant.UPLOAD_FILE_NAME);
-                LogUtils.e("UPDATE","form date is "+fromDate);
-                Date veryFirstDay = Tools.parseTimeByDate(fromDate,Constant.DEFAULT_TIME);
-                Date thisDay = Tools.parseTimeByDate(today,Constant.DEFAULT_TIME_AFTER); // 比默认时间晚一点
+                String fromDate = FileUtils.read(MainActivity.this, Constant.UPLOAD_FILE_NAME);
+                LogUtils.e("UPDATE", "form date is " + fromDate);
+                Date veryFirstDay = Tools.parseTimeByDate(fromDate, Constant.DEFAULT_TIME);
+                Date thisDay = Tools.parseTimeByDate(today, Constant.DEFAULT_TIME_AFTER); // 比默认时间晚一点
                 int intervalDays = Tools.daysBetween(veryFirstDay, thisDay);
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
-                SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN,Locale.CHINA);
+                SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN, Locale.CHINA);
                 while (thisDay.after(veryFirstDay)) {
-                    try
-                    {
+                    try {
                         // 提交太快会被后台进程杀掉
                         Thread.sleep(1000);
-                    }
-                    catch (InterruptedException e)
-                    {
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     // 获取耗时的完成百分比
                     int interval = Tools.daysBetween(veryFirstDay, thisDay);
-                    if (interval<0) break;
-                    if (interval==0){
+                    if (interval < 0) break;
+                    if (interval == 0) {
                         progressStatus = 100;
-                    }else{
-                        progressStatus = 100*(intervalDays-interval)/intervalDays;
+                    } else {
+                        progressStatus = 100 * (intervalDays - interval) / intervalDays;
                     }
-                    Scheme thisScheme = DataFetcher.fetchScheme(db,thisDay);
+                    Scheme thisScheme = DataFetcher.fetchScheme(db, thisDay);
                     boolean isEmpty = false;
-                    if (thisScheme!=null){
-                        if (thisScheme.getTargets().size()<1){
+                    if (thisScheme != null) {
+                        if (thisScheme.getTargets().size() < 1) {
 //                            LogUtils.e("update", ""+sdf.format(thisDay)+"'s target's is EMPTY!");
                             isEmpty = true;
                         }
-                    }else{
-                        LogUtils.e("update", ""+sdf.format(thisDay)+"'s target's is NULL!");
+                    } else {
+                        LogUtils.e("update", "" + sdf.format(thisDay) + "'s target's is NULL!");
                     }
                     HttpUtils.postSchemeJson(thisScheme);
-                    final String showing = ""+interval+"/"+intervalDays+" "+sdf.format(thisDay)
-                            +(isEmpty?" EMPTY":" updating");
-                    runOnUiThread(new Runnable()
-                    {
+                    final String showing = "" + interval + "/" + intervalDays + " " + sdf.format(thisDay)
+                            + (isEmpty ? " EMPTY" : " updating");
+                    runOnUiThread(new Runnable() {
 
                         @Override
-                        public void run()
-                        {
+                        public void run() {
                             titleText.setText(showing);
                         }
                     });
 
-                    thisDay=Tools.prevDay(thisDay);
+                    thisDay = Tools.prevDay(thisDay);
                     Message m = new Message();
                     m.what = 0x111;
                     // 发送消息到Handler
@@ -358,13 +388,13 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     @Override
                     public void run() {
                         titleText.setText(scheme.toShortString());
-                        Toast.makeText(MainActivity.this,"Upload success.",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Upload success.", Toast.LENGTH_SHORT).show();
                     }
                 });
 
             }
 
-}.start();
+        }.start();
 
     }
 
@@ -383,27 +413,22 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         // 启动线程来执行任务
         new Thread() {
             public void run() {
-                String fromDate = FileUtils.read(MainActivity.this,Constant.DOWNLOAD_FILE_NAME);
+                String fromDate = FileUtils.read(MainActivity.this, Constant.DOWNLOAD_FILE_NAME);
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
-                for (int i=1; i<5496;i++){
-                    try
-                    {
+                for (int i = 1; i < 5496; i++) {
+                    try {
                         Thread.sleep(100);
-                    }
-                    catch (InterruptedException e)
-                    {
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     // 获取耗时的完成百分比
-                    progressStatus = 100*(i)/5495;
+                    progressStatus = 100 * (i) / 5495;
                     HttpUtils.getTargetJson(db, i);
-                    final String showing = "download "+i+"/5495";
-                    runOnUiThread(new Runnable()
-                    {
+                    final String showing = "download " + i + "/5495";
+                    runOnUiThread(new Runnable() {
 
                         @Override
-                        public void run()
-                        {
+                        public void run() {
                             titleText.setText(showing);
                         }
                     });
@@ -446,12 +471,12 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 int offX = x - lastX;
                 int offY = y - lastY;
                 //调用layout方法来重新放置它的位置
-               // 左划右划载入昨天或明天的计划组。
-                if (offX>200){
+                // 左划右划载入昨天或明天的计划组。
+                if (offX > 200) {
                     lastX = x;
                     setHomeSchemeByDate(Tools.prevDay(scheme.getDate()));
-                }else if (offX<-200){
-                    if (!(Tools.nextDay(scheme.getDate()).after(today))){
+                } else if (offX < -200) {
+                    if (!(Tools.nextDay(scheme.getDate()).after(today))) {
                         lastX = x;
                         setHomeSchemeByDate(Tools.nextDay(scheme.getDate()));
                     }
@@ -463,9 +488,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     /**
      * 获取添加计划的回调函数
+     *
      * @param requestCode 请求码
-     * @param resultCode 返回码
-     * @param data intent
+     * @param resultCode  返回码
+     * @param data        intent
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -516,6 +542,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     /**
      * 从数据库里再取一次数据放在主页，目前相当于刷新
+     *
      * @return
      */
     private boolean fetchAll() {
@@ -536,6 +563,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     /**
      * 删除某计划并刷新主页
+     *
      * @param target 待删除的计划
      */
     private void deleteTarget(Target target) {
@@ -550,6 +578,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     /**
      * 保存所有，目前是保存当前页面的计划组
+     *
      * @return
      */
     private boolean saveAll() {
@@ -560,6 +589,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     /**
      * 弹出删除的对话框
+     *
      * @param target 待删除的计划
      */
     private void deleteDialog(final Target target) {
@@ -584,56 +614,80 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     /**
      * 弹出 列表的点击后 选择操作的对话框
-     * @param id 列表序号
+     *
+     * @param id 列表序号 如果小于零代表是闹钟
      * @return 对话框
      */
     @Override
     protected Dialog onCreateDialog(int id) {
         final int index = id;
         Dialog dialog = null;
-        Builder builder = new android.app.AlertDialog.Builder(this);
-        // 设置对话框的标题
-        builder.setTitle("选择您的操作");
-        // 添加按钮，android.content.DialogInterface.OnClickListener.OnClickListener
-        builder.setItems(R.array.dialog_actions, new android.content.DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                String action = getResources().getStringArray(R.array.dialog_actions)[which];
-                if (action.equals("删除")) {
-                    dialog.dismiss();
-                    deleteDialog(scheme.getTargets().get(index));
-                } else if (action.equals("修改")) {
-                    dialog.dismiss();
-                    Target target = scheme.getTargets().get(index);
-                    if (target instanceof Agenda) {
-                        Agenda agenda = (Agenda) target;
-                        TargetActivity.actionStart(MainActivity.this, agenda.getName(), agenda.getDescription(),
-                                Tools.formatTime(agenda.getTime()), Tools.formatTime(agenda.getEndTime()),
-                                agenda.getValue(), agenda.isDone(), true, agenda.getInterval(), agenda.getMaxValue(),
-                                Constant.RESULT_MOD_TAG);
+        if (id >= 0) { // 如果ID非负，则为列表序号
+            Builder builder = new android.app.AlertDialog.Builder(this);
+            // 设置对话框的标题
+            builder.setTitle("选择您的操作");
+            // 添加按钮，android.content.DialogInterface.OnClickListener.OnClickListener
+            builder.setItems(R.array.dialog_actions, new android.content.DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    String action = getResources().getStringArray(R.array.dialog_actions)[which];
+                    if (action.equals("删除")) {
+                        dialog.dismiss();
+                        deleteDialog(scheme.getTargets().get(index));
+                    } else if (action.equals("修改")) {
+                        dialog.dismiss();
+                        Target target = scheme.getTargets().get(index);
+                        if (target instanceof Agenda) {
+                            Agenda agenda = (Agenda) target;
+                            TargetActivity.actionStart(MainActivity.this, agenda.getName(), agenda.getDescription(),
+                                    Tools.formatTime(agenda.getTime()), Tools.formatTime(agenda.getEndTime()),
+                                    agenda.getValue(), agenda.isDone(), true, agenda.getInterval(), agenda.getMaxValue(),
+                                    Constant.RESULT_MOD_TAG);
+                        } else {
+                            TargetActivity.actionStart(MainActivity.this, target.getName(), target.getDescription(),
+                                    Tools.formatTime(target.getTime()), Tools.formatTime(target.getEndTime()),
+                                    target.getValue(), target.isDone(), false, 0, 0, Constant.RESULT_MOD_TAG);
+                        }
                     } else {
-                        TargetActivity.actionStart(MainActivity.this, target.getName(), target.getDescription(),
-                                Tools.formatTime(target.getTime()), Tools.formatTime(target.getEndTime()),
-                                target.getValue(), target.isDone(), false, 0, 0, Constant.RESULT_MOD_TAG);
+                        dialog.dismiss();
                     }
-                } else {
-                    dialog.dismiss();
                 }
-            }
-        });
-        // 创建一个列表对话框
-        dialog = builder.create();
+            });
+            // 创建一个列表对话框
+            dialog = builder.create();
+        } else { // ID为负数，显示闹钟对话框
+            dialog = new TimePickerDialog(
+                    this,
+                    new TimePickerDialog.OnTimeSetListener() {
+                        public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
+                            Calendar c = Calendar.getInstance();//获取日期对象
+                            c.setTimeInMillis(System.currentTimeMillis());        //设置Calendar对象
+                            c.set(Calendar.HOUR_OF_DAY, hourOfDay);        //设置闹钟小时数
+                            c.set(Calendar.MINUTE, minute);            //设置闹钟的分钟数
+                            c.set(Calendar.SECOND, 0);                //设置闹钟的秒数
+                            c.set(Calendar.MILLISECOND, 0);            //设置闹钟的毫秒数
+                            Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);    //创建Intent对象
+                            PendingIntent pi = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);    //创建PendingIntent
+                            alarmManager.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pi);        //设置闹钟
+                            Toast.makeText(MainActivity.this, "闹钟设置成功", Toast.LENGTH_LONG).show();//提示用户
+                        }
+                    },
+                    cal.get(Calendar.HOUR_OF_DAY),
+                    cal.get(Calendar.MINUTE),
+                    true);
+        }
         return dialog;
     }
 
     /**
      * 将所有数据保存成文件
+     *
      * @param object 传进来的数据
      */
     public void saveFile(Serializable object) {
         FileOutputStream out = null;
         ObjectOutputStream oos = null;
-        ArrayList<Scheme> arrayList = (ArrayList<Scheme>)object;
-        LogUtils.e("savefile",""+arrayList.size());
+        ArrayList<Scheme> arrayList = (ArrayList<Scheme>) object;
+        LogUtils.e("savefile", "" + arrayList.size());
         try {
             // sdcard时会报分隔符错误
 //            out = openFileOutput(path, Context.MODE_PRIVATE);
@@ -652,8 +706,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             }
         }
     }
+
     /**
      * 将所有数据保存成文件
+     *
      * @param fileDir 文件路径
      */
     public Object loadFile(String fileDir) {

@@ -35,8 +35,10 @@ public class MyDatabaseHelper extends SQLiteOpenHelper
         FirstRunDataInput frdi = new FirstRunDataInput(db);
         frdi.insertYesterday();
         Toast.makeText(mContext, "insert succeeded", Toast.LENGTH_SHORT).show();
-        FileUtils.write(mContext,Constant.DEFAULT_DATE,Constant.UPLOAD_FILE_NAME); //只执行一次
-        FileUtils.write(mContext,Constant.DEFAULT_DATE,Constant.DOWNLOAD_FILE_NAME);
+        FileUtils.write(mContext, Constant.DEFAULT_DATE, Constant.UPLOAD_FILE_NAME); //只执行一次
+        FileUtils.write(mContext, Constant.DEFAULT_DATE, Constant.DOWNLOAD_FILE_NAME);
+        FileUtils.write(mContext,Constant.DEFAULT_DATE,Constant.ALARM_FILE_NAME);
+
 
     }
 
@@ -49,6 +51,10 @@ public class MyDatabaseHelper extends SQLiteOpenHelper
 //         db.execSQL("alter table Target add column m_type integer");
              FileUtils.write(mContext,Constant.DEFAULT_DATE,Constant.UPLOAD_FILE_NAME); //只执行一次
              FileUtils.write(mContext,Constant.DEFAULT_DATE,Constant.DOWNLOAD_FILE_NAME);
+             FileUtils.write(mContext,Constant.DEFAULT_DATE,Constant.ALARM_FILE_NAME);
+             break;
+         case 2:
+             FileUtils.write(mContext,Constant.DEFAULT_DATE,Constant.ALARM_FILE_NAME);
              break;
          default:
              break;
