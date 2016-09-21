@@ -114,7 +114,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             Calendar c = Calendar.getInstance();//获取日期对象
             long millis = today.getTime()-System.currentTimeMillis();
             long rand = (long)(Math.random()*millis);
-            c.setTimeInMillis(System.currentTimeMillis()+5000);        //设置Calendar对象
+            c.setTimeInMillis(System.currentTimeMillis()+rand);        //设置Calendar对象
             Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);    //创建Intent对象
             PendingIntent pi = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);    //创建PendingIntent
             alarmManager.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pi);        //设置闹钟
