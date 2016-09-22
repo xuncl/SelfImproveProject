@@ -19,7 +19,6 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.PendingIntent;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -77,8 +76,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     ProgressBar bar;
 
     private AlarmManager alarmManager = null;
-    Calendar cal = Calendar.getInstance();
-    final int DIALOG_TIME = -1;    //设置对话框id
 
 
     /**
@@ -110,7 +107,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN, Locale.CHINA);
         String timeStr = sdf.format(today);
         String oldTime = FileUtils.read(MainActivity.this, Constant.ALARM_FILE_NAME);
-        if(!timeStr.equals(oldTime)){
+//        if(!timeStr.equals(oldTime)){
             Calendar c = Calendar.getInstance();//获取日期对象
             long millis = today.getTime()-System.currentTimeMillis();
             long rand = (long)(Math.random()*millis);
@@ -119,9 +116,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             PendingIntent pi = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);    //创建PendingIntent
             alarmManager.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pi);        //设置闹钟
             Toast.makeText(MainActivity.this, "闹钟设置成功"+c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE), Toast.LENGTH_LONG).show();//提示用户
-            LogUtils.e("Alarm","Alarm at "+c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE));
+//            LogUtils.e("Alarm","Alarm at "+c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE));
             FileUtils.write(this,timeStr,Constant.ALARM_FILE_NAME);
-        }
+//        }
     }
 
     /**
@@ -178,7 +175,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                         Toast.makeText(MainActivity.this, "download",
                                 Toast.LENGTH_LONG).show();
 //                        startDownload();
-                        showDialog(DIALOG_TIME);//显示时间选择对话框
+//                        showDialog(DIALOG_TIME);//显示时间选择对话框
                         break;
                     case R.id.add_target:
                         onAddTarget();
@@ -622,7 +619,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     protected Dialog onCreateDialog(int id) {
         final int index = id;
         Dialog dialog = null;
-        if (id >= 0) { // 如果ID非负，则为列表序号
+        if (id >= 0) { // 如果ID非负，则为列表序号，ID为负的代码已经删去
             Builder builder = new android.app.AlertDialog.Builder(this);
             // 设置对话框的标题
             builder.setTitle("选择您的操作");
@@ -654,26 +651,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             });
             // 创建一个列表对话框
             dialog = builder.create();
-        } else { // ID为负数，显示闹钟对话框
-            dialog = new TimePickerDialog(
-                    this,
-                    new TimePickerDialog.OnTimeSetListener() {
-                        public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
-                            Calendar c = Calendar.getInstance();//获取日期对象
-                            c.setTimeInMillis(System.currentTimeMillis());        //设置Calendar对象
-                            c.set(Calendar.HOUR_OF_DAY, hourOfDay);        //设置闹钟小时数
-                            c.set(Calendar.MINUTE, minute);            //设置闹钟的分钟数
-                            c.set(Calendar.SECOND, 0);                //设置闹钟的秒数
-                            c.set(Calendar.MILLISECOND, 0);            //设置闹钟的毫秒数
-                            Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);    //创建Intent对象
-                            PendingIntent pi = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);    //创建PendingIntent
-                            alarmManager.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pi);        //设置闹钟
-                            Toast.makeText(MainActivity.this, "闹钟设置成功", Toast.LENGTH_LONG).show();//提示用户
-                        }
-                    },
-                    cal.get(Calendar.HOUR_OF_DAY),
-                    cal.get(Calendar.MINUTE),
-                    true);
         }
         return dialog;
     }

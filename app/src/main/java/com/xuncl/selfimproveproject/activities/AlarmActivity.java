@@ -21,7 +21,7 @@ public class AlarmActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        player = MediaPlayer.create(this, R.raw.alarm_fairytail);
+        player = MediaPlayer.create(this, R.raw.alarm_fairytail_short);
 
         //显示对话框
         new AlertDialog.Builder(AlarmActivity.this).
