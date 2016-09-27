@@ -4,7 +4,7 @@ package com.xuncl.selfimproveproject.activities;
 import android.app.Activity;
 import android.os.Bundle;
 
-import com.umeng.analytics.MobclickAgent;
+//import com.umeng.analytics.MobclickAgent;
 import com.xuncl.selfimproveproject.Constant;
 import com.xuncl.selfimproveproject.utils.LogUtils;
 
@@ -30,13 +30,13 @@ public class BaseActivity extends Activity
     @Override
     public void onResume() {
         super.onResume();
-        MobclickAgent.onResume(this);
+//        MobclickAgent.onResume(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        MobclickAgent.onPause(this);
+//        MobclickAgent.onPause(this);
     }
     
 }

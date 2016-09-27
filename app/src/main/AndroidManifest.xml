@@ -35,8 +35,8 @@
         <!--android:process=":remote" 新起一个进程运行-->
         <receiver android:name=".receivers.AlarmReceiver" android:process=":remote"/>
 
-        <meta-data android:value="5790e94e67e58e1d6900121b" android:name="UMENG_APPKEY"/>
-        <meta-data android:value="Manual" android:name="UMENG_CHANNEL"/>
+        <!--<meta-data android:value="5790e94e67e58e1d6900121b" android:name="UMENG_APPKEY"/>-->
+        <!--<meta-data android:value="Manual" android:name="UMENG_CHANNEL"/>-->
     </application>
 
 </manifest>

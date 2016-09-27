@@ -42,10 +42,9 @@ import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.umeng.analytics.MobclickAgent;
+//import com.umeng.analytics.MobclickAgent;
 import com.xuncl.selfimproveproject.activities.ActivityCollector;
 import com.xuncl.selfimproveproject.activities.BaseActivity;
 import com.xuncl.selfimproveproject.activities.TargetActivity;
@@ -101,9 +100,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         initAlarm();
 
         // 集成友盟统计
-        MobclickAgent.UMAnalyticsConfig config = new MobclickAgent.UMAnalyticsConfig(this,
-                Constant.UMENG_APPKEY, Constant.UMENG_CHANNELID);
-        MobclickAgent.startWithConfigure(config);
+//        MobclickAgent.UMAnalyticsConfig config = new MobclickAgent.UMAnalyticsConfig(this,
+//                Constant.UMENG_APPKEY, Constant.UMENG_CHANNELID);
+//        MobclickAgent.startWithConfigure(config);
     }
 
     private void initAlarm() {

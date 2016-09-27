@@ -9,10 +9,8 @@ import android.os.Bundle;
 
 import com.xuncl.selfimproveproject.R;
 
-import java.io.IOException;
 
-
-public class AlarmActivity extends Activity {
+public class AlarmActivity extends BaseActivity {
 
 
     private MediaPlayer player;
