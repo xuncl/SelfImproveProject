@@ -1,69 +1,121 @@
 package com.xuncl.selfimproveproject;
 
-import android.app.AlertDialog;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.MediaPlayer;
-import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
+
+import com.xuncl.selfimproveproject.receivers.AlarmReceiver;
+import com.xuncl.selfimproveproject.receivers.WakeServiceReceiver;
+import com.xuncl.selfimproveproject.utils.LogUtils;
+
+import java.util.Calendar;
 
 /**
  * Created by CLEVO on 2016/9/27.
  */
 public class MyService extends Service {
+    private static final String TAG = "MyService";
+
+    public static final String KEEP = "KEEP";
+    public static final String WAKE = "WAKE";
+    public static final String RING = "RING";
+    public static final String ALARM = "ALARM";
+    public static final String TIME_MILLI = "TIME_MILLI";
+    private boolean isRang = true;
+    private Calendar c = Calendar.getInstance();
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
-    private MediaPlayer player;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        callWaker();
+    }
 
-        player = MediaPlayer.create(this, R.raw.alarm_fairytail_short);
 
-//        //显示对话框
-//        new AlertDialog.Builder(MyService.this).
-//                setTitle("IT'S TIME TO").//设置标题
-//                setMessage("CHALLENGE YOURSELF！").//设置内容
-//                setPositiveButton("WILL DO", new DialogInterface.OnClickListener(){//设置按钮
-//            public void onClick(DialogInterface dialog, int which) {
-//                //TODO Record what challenge user has accepted.
-//                stopRing();
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                //打印时间信息
+//                LogUtils.d("LongRunningService", "executed at " + new Date().
+//                        toString());
+//                // TODO something need time and can be run background
 //            }
-//        }).create().show();
+//        }).start();
+        String ring = intent.getStringExtra(ALARM);
+        switch (ring){
+            case RING:
+                prepareAlarm(intent.getLongExtra(TIME_MILLI, 0));
+                break;
+            case KEEP:
+                break;
+            case WAKE:
+                callWaker();
+                break;
+            default:
+                break;
+        }
 
-        ringAlarm();
-    }
-
-    private void stopRing() {
-        player.stop();
-    }
-
-    private void ringAlarm() {
-        player.start();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId)
-    {
-        // 在service中重写下面的方法，这个方法有三个返回值，
-        // START_STICKY（或START_STICKY_COMPATIBILITY）是service被kill掉后自动重写创建
+        if (!isRang()) {
+            wakeAlarm();
+        }
         return START_STICKY_COMPATIBILITY;
-        //return super.onStartCommand(intent, flags, startId);
     }
 
+
+    private void wakeAlarm() {
+        if (c.getTimeInMillis() - System.currentTimeMillis() < 60000) {
+            LogUtils.i(TAG, "Let's RING!!! " + System.currentTimeMillis());
+
+            AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            Intent i = new Intent(this, AlarmReceiver.class);
+            PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
+            manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 1000, pi);
+            setIsRang(true);
+        }
+    }
+
+    private void prepareAlarm(long millis) {
+        if (millis > 0) {
+            setIsRang(false);
+            c.setTimeInMillis(millis);
+            LogUtils.v(TAG, "Now Service receive the ring-time: " + c.getTimeInMillis());
+        }
+    }
+
+    private void callWaker() {
+        AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        int hour = 30000;//每隔三十秒刷新一次
+        long triggerAtTime = SystemClock.elapsedRealtime() + hour;
+        Intent i = new Intent(this, WakeServiceReceiver.class);
+        PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
+        manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
+    }
+
+
     @Override
-    public void onDestroy()
-    {
+    public void onDestroy() {
         Intent localIntent = new Intent();
         localIntent.setClass(this, MyService.class); // 销毁时重新启动Service
         this.startService(localIntent);
     }
 
+    public boolean isRang() {
+        return isRang;
+    }
+
+    public void setIsRang(boolean isRang) {
+        this.isRang = isRang;
+    }
 }

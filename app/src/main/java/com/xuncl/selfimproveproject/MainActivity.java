@@ -53,7 +53,6 @@ import com.xuncl.selfimproveproject.database.DataDeleter;
 import com.xuncl.selfimproveproject.database.DataFetcher;
 import com.xuncl.selfimproveproject.database.DataUpdater;
 import com.xuncl.selfimproveproject.database.MyDatabaseHelper;
-import com.xuncl.selfimproveproject.receivers.AlarmReceiver;
 import com.xuncl.selfimproveproject.service.Agenda;
 import com.xuncl.selfimproveproject.service.Backlog;
 import com.xuncl.selfimproveproject.service.Scheme;
@@ -67,7 +66,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     private PopupMenu popupMenu;
     private Scheme scheme = new Scheme();
-    private static Date today = new Date();
+    private Date today = new Date();
     private MyDatabaseHelper dbHelper;
     private String path = Environment.getExternalStorageDirectory().getPath() + "/scheme";
     // 记录ProgressBar的完成进度
@@ -75,17 +74,12 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     TextView titleText;
     ProgressBar bar;
 
-    private AlarmManager alarmManager = null;
-
     private PowerManager.WakeLock wakeLock = null;
     private final String TAG = "MainActivity";
 
     /**
      * 初始化today变量
      */
-    static {
-        initToday();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +87,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
 
-        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        today = Tools.setEndofDay(today);
 
         initTitle();
         initTargets();
@@ -107,36 +101,28 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     private void initAlarm() {
         SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN, Locale.CHINA);
-        String timeStr = sdf.format(today);
-        String oldTime = FileUtils.read(MainActivity.this, Constant.ALARM_FILE_NAME);
-//        if(!timeStr.equals(oldTime)){
-            Calendar c = Calendar.getInstance();//获取日期对象
-            long millis = today.getTime()-System.currentTimeMillis();
-            long rand = (long)(Math.random()*millis);
-            c.setTimeInMillis(System.currentTimeMillis()+rand);        //设置Calendar对象
-            Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);    //创建Intent对象
-            PendingIntent pi = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);    //创建PendingIntent
-            alarmManager.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pi);        //设置闹钟
-            Toast.makeText(MainActivity.this, "闹钟设置成功"+c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE), Toast.LENGTH_LONG).show();//提示用户
-//            LogUtils.e("Alarm","Alarm at "+c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE));
-            FileUtils.write(this,timeStr,Constant.ALARM_FILE_NAME);
-//        }
-    }
 
-    /**
-     * 初始化today变量，使其为今天的23点59分，用于右划边界的判断
-     */
-    private static void initToday() {
-        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN, Locale.CHINA);
-        SimpleDateFormat sdf2 = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN + " HH:mm", Locale.CHINA);
-        String timeStr = sdf.format(today);
-        timeStr = timeStr + " 23:59";
-        try {
-            today = sdf2.parse(timeStr);
-        } catch (ParseException e) {
-            e.printStackTrace();
+        // 这不用today是因为它是静态变量，重启Activity不会带来变化，
+        Date thisDay = Tools.setEndofDay(new Date());
+        String timeStr = sdf.format(thisDay);
+
+        String oldTime = FileUtils.read(MainActivity.this, Constant.ALARM_FILE_NAME);
+        if (!timeStr.equals(oldTime)) {
+            Calendar c = Calendar.getInstance();//获取日期对象
+            long millis = thisDay.getTime() - System.currentTimeMillis();
+            long rand = (long) (Math.random() * millis);
+            c.setTimeInMillis(System.currentTimeMillis() + rand);        //设置Calendar对象
+            Toast.makeText(MainActivity.this, "闹钟设置成功" + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE), Toast.LENGTH_LONG).show();//提示用户
+            FileUtils.write(this, timeStr, Constant.ALARM_FILE_NAME);
+
+            Intent intent = new Intent(MainActivity.this, MyService.class);
+            intent.putExtra(MyService.ALARM, MyService.RING);
+            intent.putExtra(MyService.TIME_MILLI, c.getTimeInMillis());
+            startService(intent);
         }
     }
+
+
 
     /**
      * 初始化标题栏的资源
@@ -736,7 +722,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     }
 
     /**
-    释放设备电源锁
+     * 释放设备电源锁
      */
     private void releaseWakeLock() {
         if (null != wakeLock && wakeLock.isHeld()) {
@@ -748,7 +734,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
     @Override
     protected void onStart() {
-        acquireWakeLock();
+        acquireWakeLock(); //获取电源锁
         super.onStart();
     }
 

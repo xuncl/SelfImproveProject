@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 
 import android.annotation.SuppressLint;
@@ -120,6 +121,22 @@ public class Tools
         long time2 = cal.getTimeInMillis();
         long between_days=(time2-time1)/(1000*3600*24);
         return Integer.parseInt(String.valueOf(between_days));
+    }
+
+    /**
+     * 初始化today变量，使其为今天的23点59分，用于右划边界的判断
+     */
+    public static Date setEndofDay(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN, Locale.CHINA);
+        SimpleDateFormat sdf2 = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN + " HH:mm", Locale.CHINA);
+        String timeStr = sdf.format(date);
+        timeStr = timeStr + " 23:59";
+        try {
+            date = sdf2.parse(timeStr);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
     }
 
 }
