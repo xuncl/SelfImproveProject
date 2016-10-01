@@ -1,9 +1,17 @@
 package com.xuncl.selfimproveproject.utils;
 
 import android.content.Context;
+import android.os.Environment;
+
+import com.xuncl.selfimproveproject.service.Scheme;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Created by CLEVO on 2016/8/26.
@@ -42,5 +50,66 @@ public class FileUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 将所有数据保存成文件
+     *
+     * @param object 传进来的数据
+     */
+    public static void saveFile(Serializable object) {
+        String path = Environment.getExternalStorageDirectory().getPath() + "/scheme";
+        FileOutputStream out = null;
+        ObjectOutputStream oos = null;
+        ArrayList<Scheme> arrayList = (ArrayList<Scheme>) object;
+        LogUtils.e("savefile", "" + arrayList.size());
+        try {
+            // sdcard时会报分隔符错误
+//            out = openFileOutput(path, Context.MODE_PRIVATE);
+            out = new FileOutputStream(path);
+            oos = new ObjectOutputStream(out);
+            oos.writeObject(object);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (oos != null) {
+                try {
+                    oos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * 将所有数据保存成文件
+     *
+     * @param fileDir 文件路径
+     */
+    public static Object loadFile(String fileDir) {
+        FileInputStream in = null;
+        ObjectInputStream ois = null;
+        Object obj = null;
+        try {
+            // sdcard时会报分隔符错误
+//            in = openFileInput(fileDir);
+            in = new FileInputStream(fileDir);
+            ois = new ObjectInputStream(in);
+            obj = ois.readObject();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e2) {
+            e2.printStackTrace();
+        } finally {
+            if (ois != null) {
+                try {
+                    ois.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return obj;
     }
 }
