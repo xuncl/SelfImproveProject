@@ -159,7 +159,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                         startUpdate();
                         break;
                     case R.id.download_btn:
-                        Toast.makeText(MainActivity.this, "download",
+                        Toast.makeText(MainActivity.this, "service live at: "+FileUtils.read(MainActivity.this, Constant.SERVICE_LIVE_TXT),
                                 Toast.LENGTH_LONG).show();
 //                        startDownload();
 //                        showDialog(DIALOG_TIME);//显示时间选择对话框
@@ -167,12 +167,23 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     case R.id.add_target:
                         onAddTarget();
                         break;
+                    case R.id.active_service:
+                        startMyService();
+                        Toast.makeText(MainActivity.this, "service live at: "+FileUtils.read(MainActivity.this, Constant.SERVICE_LIVE_TXT),
+                                Toast.LENGTH_LONG).show();
+                        break;
                     default:
                         break;
                 }
                 return false;
             }
         });
+    }
+
+    private void startMyService() {
+        Intent i = new Intent(this, MyService.class);
+        i.putExtra(MyService.ALARM, MyService.KEEP);
+        startService(i);
     }
 
 
@@ -307,6 +318,11 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         };
 
         // 启动线程来执行任务
+        updateByThread(handler);
+
+    }
+
+    private void updateByThread(final Handler handler) {
         new Thread() {
             public void run() {
                 String fromDate = FileUtils.read(MainActivity.this, Constant.UPLOAD_FILE_NAME);
@@ -380,7 +396,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             }
 
         }.start();
-
     }
 
     private void startDownload() {

@@ -69,5 +69,6 @@ public final class Constant
     public static final String UPLOAD_FILE_NAME = "upload.txt";
     public static final String DOWNLOAD_FILE_NAME = "download.txt";
     public static final String ALARM_FILE_NAME = "alarm.txt";
+    public static final String SERVICE_LIVE_TXT = "service_live.txt";
 
 }

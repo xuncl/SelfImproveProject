@@ -15,4 +15,8 @@
         android:id="@+id/add_target"
         android:title="@string/add_target" />
 
+    <item
+        android:id="@+id/active_service"
+        android:title="@string/active_service" />
+
 </menu>

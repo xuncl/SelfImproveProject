@@ -10,9 +10,13 @@ import android.support.annotation.Nullable;
 
 import com.xuncl.selfimproveproject.receivers.AlarmReceiver;
 import com.xuncl.selfimproveproject.receivers.WakeServiceReceiver;
+import com.xuncl.selfimproveproject.utils.FileUtils;
 import com.xuncl.selfimproveproject.utils.LogUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by CLEVO on 2016/9/27.
@@ -53,12 +57,15 @@ public class MyService extends Service {
 //                // TODO something need time and can be run background
 //            }
 //        }).start();
+        LogUtils.e(TAG,"Remind that I'm alive.");
         String ring = intent.getStringExtra(ALARM);
         switch (ring){
             case RING:
                 prepareAlarm(intent.getLongExtra(TIME_MILLI, 0));
+                callWaker();
                 break;
             case KEEP:
+                callWaker();
                 break;
             case WAKE:
                 callWaker();
@@ -70,7 +77,14 @@ public class MyService extends Service {
         if (!isRang()) {
             wakeAlarm();
         }
+
+        recordLiveTime();
         return START_STICKY_COMPATIBILITY;
+    }
+
+    private void recordLiveTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat(Constant.TIME_FORMAT_PATTERN, Locale.CHINA);
+        FileUtils.write(this, sdf.format(new Date()), Constant.SERVICE_LIVE_TXT);
     }
 
 
@@ -94,6 +108,7 @@ public class MyService extends Service {
         }
     }
 
+    //pi 会覆盖之前的pi, 不必担心多个pi同时出现
     private void callWaker() {
         AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
         int hour = 30000;//每隔三十秒刷新一次

@@ -25,6 +25,7 @@
     <string name="button_save">保存</string>
     <string name="upload">上传数据</string>
     <string name="download">下载数据</string>
+    <string name="active_service">激活服务</string>
     <string name="add_target">添加事项</string>
 
 </resources>
