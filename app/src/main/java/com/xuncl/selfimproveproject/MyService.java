@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import com.xuncl.selfimproveproject.receivers.AlarmReceiver;
 import com.xuncl.selfimproveproject.receivers.WakeServiceReceiver;
 import com.xuncl.selfimproveproject.utils.FileUtils;
+import com.xuncl.selfimproveproject.utils.HttpUtils;
 import com.xuncl.selfimproveproject.utils.LogUtils;
 
 import java.text.SimpleDateFormat;
@@ -58,6 +59,7 @@ public class MyService extends Service {
 //            }
 //        }).start();
         LogUtils.e(TAG,"Remind that I'm alive.");
+        HttpUtils.postServiceAlive();
         String ring = intent.getStringExtra(ALARM);
         switch (ring){
             case RING:

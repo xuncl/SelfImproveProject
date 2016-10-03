@@ -31,6 +31,47 @@ public class HttpUtils {
     private static final String TAG = "HTTP_UTILS";
 
 
+    public static void postServiceAlive() {
+        String url = "/index.php/Views/Alive/record";
+        JsonObjectRequest jsonObjectRequest;
+        JSONObject jsonObject = new JSONObject();
+
+
+        try {
+            jsonObject.put("name", "MyService");
+            jsonObject.put("alive", 1);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            jsonObjectRequest = new JsonObjectRequest(
+                    Request.Method.POST, Constant.BASE_URL + url, jsonObject,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            //打印请求后获取的json数据
+                            LogUtils.e(TAG, "Response:" + response.toString());
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError arg0) {
+                    LogUtils.e(TAG, "ErrorResponse:" + arg0.toString());
+                }
+            }) {
+
+                @Override
+                public String getBodyContentType() {
+                    return "application/json";
+                }
+            }
+            ;
+            MyApplication.getHttpQueue().add(jsonObjectRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        MyApplication.getHttpQueue().start(); //不需要
+    }
+
     public static void postSchemeJson(Scheme scheme) {
         String url = "/index.php/Views/Raw/targets";
         JsonObjectRequest jsonObjectRequest;
@@ -111,7 +152,7 @@ public class HttpUtils {
 //                                    "\u767e\u8bcd\u65a9\uff0c\u8003\u7814\u8bcd\u6c47\uff0c\u81f3\u5c1130\u4e2a", "mvalue":
 //                                    "5", "isagenda":"1", "minterval":"1", "mmaxvalue":
 //                                    "5", "todayvalue":"7521", "yesterdayvalue":"7550", "isdone":"0"
-                                if ("201".equals(response.getString("result_code"))){
+                                if ("201".equals(response.getString("result_code"))) {
                                     try {
                                         String name = response.getString("name");
                                         String mDate = response.getString("mdate");
@@ -126,13 +167,13 @@ public class HttpUtils {
                                         int todayValue = Integer.parseInt(response.getString("todayvalue"));
                                         int yesterdayValue = Integer.parseInt(response.getString("yesterdayvalue"));
                                         Target target;
-                                        if (isagenda){
+                                        if (isagenda) {
                                             target = new Agenda(name, mDate, startTime, endTime, description, mValue, mInterval, mMaxValue,
                                                     isDone);
-                                        }else {
+                                        } else {
                                             target = new Backlog(name, mDate, startTime, endTime, description, mValue, isDone);
                                         }
-                                        DataUpdater.insertRawTarget(db,todayValue,yesterdayValue,target);
+                                        DataUpdater.insertRawTarget(db, todayValue, yesterdayValue, target);
                                     } catch (NumberFormatException e) {
                                         e.printStackTrace();
                                     } catch (JSONException e) {
