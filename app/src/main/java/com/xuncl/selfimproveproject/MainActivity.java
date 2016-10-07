@@ -118,7 +118,12 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             intent.putExtra(MyService.ALARM, MyService.RING);
             intent.putExtra(MyService.TIME_MILLI, c.getTimeInMillis());
             startService(intent);
+        }else{
+            Intent intent = new Intent(MainActivity.this, MyService.class);
+            intent.putExtra(MyService.ALARM, MyService.KEEP);
+            startService(intent);
         }
+
     }
 
 
@@ -251,6 +256,8 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private void saveTodayTargets() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         DataUpdater.updateScheme(db, scheme);
+        SimpleDateFormat sdf = new SimpleDateFormat(Constant.DATE_FORMAT_PATTERN, Locale.CHINA);
+        FileUtils.write(this, sdf.format(scheme.getDate()), Constant.UPLOAD_FILE_NAME); //只执行一次
         db.close();
     }
 
@@ -584,6 +591,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
     private boolean saveAll() {
 //        Toast.makeText(MainActivity.this, "saving...", Toast.LENGTH_SHORT).show();
         saveTodayTargets();
+
         return false;
     }
 
