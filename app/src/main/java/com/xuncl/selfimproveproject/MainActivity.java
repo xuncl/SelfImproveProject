@@ -28,6 +28,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
+import android.provider.AlarmClock;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -118,14 +119,13 @@ public class MainActivity extends BaseActivity implements OnClickListener {
             intent.putExtra(MyService.ALARM, MyService.RING);
             intent.putExtra(MyService.TIME_MILLI, c.getTimeInMillis());
             startService(intent);
-        }else{
+        } else {
             Intent intent = new Intent(MainActivity.this, MyService.class);
             intent.putExtra(MyService.ALARM, MyService.KEEP);
             startService(intent);
         }
 
     }
-
 
 
     /**
@@ -164,17 +164,18 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                         startUpdate();
                         break;
                     case R.id.download_btn:
-                        Toast.makeText(MainActivity.this, "service live at: "+FileUtils.read(MainActivity.this, Constant.SERVICE_LIVE_TXT),
+                        Toast.makeText(MainActivity.this, "service live at: " + FileUtils.read(MainActivity.this, Constant.SERVICE_LIVE_TXT),
                                 Toast.LENGTH_LONG).show();
 //                        startDownload();
 //                        showDialog(DIALOG_TIME);//显示时间选择对话框
+//                        startSystemAlarm();
                         break;
                     case R.id.add_target:
                         onAddTarget();
                         break;
                     case R.id.active_service:
                         startMyService();
-                        Toast.makeText(MainActivity.this, "service live at: "+FileUtils.read(MainActivity.this, Constant.SERVICE_LIVE_TXT),
+                        Toast.makeText(MainActivity.this, "service live at: " + FileUtils.read(MainActivity.this, Constant.SERVICE_LIVE_TXT),
                                 Toast.LENGTH_LONG).show();
                         break;
                     default:
@@ -183,6 +184,12 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                 return false;
             }
         });
+    }
+
+    private void startSystemAlarm() {
+        // 唤醒系统闹钟
+        Intent alarm = new Intent(AlarmClock.ACTION_SET_ALARM);
+        startActivity(alarm);
     }
 
     private void startMyService() {
@@ -382,8 +389,15 @@ public class MainActivity extends BaseActivity implements OnClickListener {
                     handler.sendMessage(m);
                 }
 
-
-                FileUtils.write(MainActivity.this, sdf.format(today), Constant.UPLOAD_FILE_NAME);
+                String oldDateStr = FileUtils.read(MainActivity.this, Constant.UPLOAD_FILE_NAME);
+                try {
+                    Date oldDate = sdf.parse(oldDateStr);
+                    if (!oldDate.before(today)) {
+                        FileUtils.write(MainActivity.this, sdf.format(today), Constant.UPLOAD_FILE_NAME);
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 db.close();
 
 //                bar.setProgress(0);// 异步的，导致进度条无法置零
@@ -665,7 +679,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
         }
         return dialog;
     }
-
 
 
     /**
