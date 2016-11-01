@@ -55,6 +55,10 @@ public class Scheme implements Evalueable, Serializable
         this.setTargets(targets2);
     }
 
+    /**
+     * Will not work well when there is ub or ob targets.
+     * @return sum(absolute value of targets)
+     */
     @Override
     public int getValue()
     {
