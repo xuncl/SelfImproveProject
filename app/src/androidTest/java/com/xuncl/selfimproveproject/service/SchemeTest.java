@@ -41,7 +41,7 @@ public class SchemeTest extends TestCase {
     }
 
     public void testGetValue() throws Exception {
-        assertEquals(16+13+23, myScheme.getValue());
+        assertEquals(16+13+17+19+23, myScheme.getValue());
     }
 
     public void testCheck() throws Exception {

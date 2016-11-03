@@ -82,14 +82,7 @@ public class Scheme implements Evalueable, Serializable
         todayValue = yesterdayValue;
         for (Target target : targets)
         {
-            if (target.isDone())
-            {
-                todayValue += target.getValue();
-            }
-            else
-            {
-                todayValue -= target.getValue();
-            }
+            todayValue += target.getRealValue();
             isAllDone = isAllDone && target.isDone();
         }
         checked = true;

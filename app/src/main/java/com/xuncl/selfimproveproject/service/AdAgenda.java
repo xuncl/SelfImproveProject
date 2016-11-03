@@ -32,10 +32,10 @@ public class AdAgenda extends Agenda {
     }
 
     @Override
-    public int getValue() {
+    public int getRealValue() {
         if (ub&&isDone()) return 0;
         if (ob&&(!isDone())) return 0;
-        return super.getValue();
+        return super.getRealValue();
     }
 
 }

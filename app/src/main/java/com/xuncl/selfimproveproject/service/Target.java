@@ -41,6 +41,14 @@ public abstract class Target implements Checkable, Evalueable, Serializable
         }
     }
 
+    public int getRealValue(){
+        if (isDone){
+            return value;
+        }else{
+            return -value;
+        }
+    }
+
     @Override
     public void setDone()
     {
